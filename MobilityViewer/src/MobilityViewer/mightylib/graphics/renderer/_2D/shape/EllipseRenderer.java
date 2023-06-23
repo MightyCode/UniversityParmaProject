@@ -1,0 +1,50 @@
+package MobilityViewer.mightylib.graphics.renderer._2D.shape;
+
+import MobilityViewer.mightylib.graphics.renderer.Renderer;
+import MobilityViewer.mightylib.graphics.renderer.RendererUtils;
+import MobilityViewer.mightylib.graphics.renderer.Shape;
+import MobilityViewer.mightylib.util.math.EDirection;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+
+public class EllipseRenderer extends Renderer {
+    protected EDirection reference;
+    protected final int positionIndex;
+
+    public EllipseRenderer(String shaderName) {
+        super(shaderName, true);
+
+        reference = EDirection.None;
+
+        int[] indices = RendererUtils.indicesForSquare();
+        shape.setEboStorage(Shape.STATIC_STORE);
+        shape.setEbo(indices);
+        positionIndex = shape.addVboFloat(calculatePosition(), 2, Shape.STATIC_STORE);
+    }
+
+
+    private float[] calculatePosition(){
+        return RendererUtils.calculatePositionForSquare(new Vector2f(1, 1), this.reference);
+    }
+
+    public EllipseRenderer setReference(EDirection reference){
+        this.reference = reference;
+
+        shape.updateVbo(calculatePosition(), positionIndex);
+
+        return this;
+    }
+
+    // Set size with size of pixel
+    public EllipseRenderer setSizePix(float width, float height){
+        setScale(new Vector3f(width, height, 1.0f));
+
+        return this;
+    }
+
+    public EllipseRenderer setPosition(Vector2f position){
+        super.setPosition(new Vector3f(position.x, position.y, 0.0f));
+
+        return this;
+    }
+}
