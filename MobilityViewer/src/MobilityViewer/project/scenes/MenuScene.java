@@ -10,13 +10,11 @@ import MobilityViewer.mightylib.sounds.SoundSourceCreationInfo;
 import MobilityViewer.mightylib.util.math.Color4f;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.project.main.ActionId;
+import MobilityViewer.project.scenes.loadingContent.FullMatrixLoading;
 import MobilityViewer.project.scenes.mapScenes.*;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MenuScene extends Scene {
     private static final SoundSourceCreationInfo CREATION_INFO_SELECT = new SoundSourceCreationInfo();
@@ -27,33 +25,6 @@ public class MenuScene extends Scene {
     }
 
     private GUIList guiList;
-
-    private static List<Result> parseJsonResponse(String jsonResponse) {
-        List<Result> results = new ArrayList<>();
-
-        System.out.println(jsonResponse);
-
-        return results;
-    }
-
-    private static class Result {
-        private boolean success;
-        private String result;
-
-        public Result(boolean success, String result) {
-            this.success = success;
-            this.result = result;
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public String getResult() {
-            return result;
-        }
-    }
-
 
     public void init(String[] args) {
         super.init(args, new BasicBindableObject().setQualityTexture(TextureParameters.REALISTIC_PARAMETERS));
@@ -122,6 +93,14 @@ public class MenuScene extends Scene {
         movesMatrixScene.OverlapsText.setColor(new Color4f(0.3f))
                 .setText("->Moves matrix start/end<-");
 
+        BackgroundlessButton fullMatrixScene = parmaScene.copy();
+        fullMatrixScene.Text.setPosition(new Vector2f(windowSize.x * 0.75f, windowSize.y * 0.3f))
+                .setText("Full matrix start/end");
+
+        fullMatrixScene.Text.copyTo(fullMatrixScene.OverlapsText);
+        fullMatrixScene.OverlapsText.setColor(new Color4f(0.3f))
+                .setText("->Full matrix start/end<-");
+
         BackgroundlessButton buttonQuit = parmaScene.copy();
         buttonQuit.Text.setPosition(new Vector2f(windowSize.x * 0.5f, windowSize.y * 0.9f))
                 .setText("Quit");
@@ -138,7 +117,8 @@ public class MenuScene extends Scene {
         guiList.GUIs.put(3, exportPathScene);
         guiList.GUIs.put(4, showScooterSimulation);
         guiList.GUIs.put(5, movesMatrixScene);
-        guiList.GUIs.put(6, buttonQuit);
+        guiList.GUIs.put(6, fullMatrixScene);
+        guiList.GUIs.put(-1, buttonQuit);
         guiList.ShouldLoop = false;
     }
 
@@ -172,6 +152,9 @@ public class MenuScene extends Scene {
                         sceneManagerInterface.setNewScene(new MovesMatrixScene(), new String[]{""});
                         break;
                     case 6:
+                        sceneManagerInterface.setNewScene(new ConstructFullMatrixScene(), new String[]{""});
+                        break;
+                    case -1:
                         sceneManagerInterface.exit(0);
                         break;
                 }

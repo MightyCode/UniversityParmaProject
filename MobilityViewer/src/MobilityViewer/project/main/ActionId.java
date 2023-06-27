@@ -4,8 +4,8 @@ import MobilityViewer.mightylib.inputs.InputManager;
 public class ActionId {
     public static final int MOVE_RIGHT = InputManager.getAndIncrementId();
     public static final int MOVE_LEFT = InputManager.getAndIncrementId();
-    public static final int MOVE_FORWARD = InputManager.getAndIncrementId();
-    public static final int MOVE_BACKWARD = InputManager.getAndIncrementId();
+    public static final int OBJECT_SIZE_UP = InputManager.getAndIncrementId();
+    public static final int OBJECT_SIZE_DOWN = InputManager.getAndIncrementId();
     public static final int MOVE_UP = InputManager.getAndIncrementId();
     public static final int MOVE_DOWN = InputManager.getAndIncrementId();
     public static final int SHIFT = InputManager.getAndIncrementId();

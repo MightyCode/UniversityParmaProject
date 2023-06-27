@@ -13,8 +13,8 @@ import java.util.List;
 
 public class Scooter {
     private static int ID_COUNTER = 0;
-    private int id = ID_COUNTER++;
-    private static final float SIZE = 10f;
+    private final int id = ID_COUNTER++;
+    public static float Size = 10f;
 
     private RectangleRenderer renderer;
 
@@ -62,7 +62,6 @@ public class Scooter {
         renderer.setReferenceCamera(referenceCamera);
         renderer.setReference(EDirection.None);
         renderer.switchToColorMode(ColorList.Orange());
-        renderer.setSizePix(SIZE, SIZE);
     }
 
     public void update(long currentTime, Vector4f boundaries, Vector4f rendererDest){
@@ -89,6 +88,7 @@ public class Scooter {
         if (currentTime < startTime || currentTime > startTime + timeToAchievePath)
             return;
 
+        renderer.setSizePix(Size, Size);
         renderer.display();
     }
 

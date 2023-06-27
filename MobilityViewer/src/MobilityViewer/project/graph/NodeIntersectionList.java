@@ -4,7 +4,7 @@ public class NodeIntersectionList extends ListNode<NodeSubIntersection> {
     private final NodeIntersection from;
     private final NodeIntersection to;
     public NodeIntersectionList(NodeIntersection from, NodeIntersection to) {
-        super(from.getId());
+        super(to.getId());
         this.from = from;
         this.to = to;
     }

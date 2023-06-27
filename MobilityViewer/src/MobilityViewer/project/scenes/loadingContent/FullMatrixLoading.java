@@ -2,93 +2,47 @@ package MobilityViewer.project.scenes.loadingContent;
 
 import MobilityViewer.mightylib.resources.Resources;
 import MobilityViewer.mightylib.resources.data.CSVFile;
-import MobilityViewer.mightylib.util.DataFolder;
-import MobilityViewer.project.graph.Graph;
-import MobilityViewer.project.graph.Node;
-import MobilityViewer.project.graph.Road;
 import MobilityViewer.project.scenes.SceneConstants;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector4f;
-import org.json.JSONObject;;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
+public class FullMatrixLoading extends LoadingContent {
 
-public class MovesMatrixLoading extends LoadingContent {
-    //public static final int NUMBER_CELLS_BY_COORD = 10000;
-    public static final int NUMBER_CELLS_BY_COORD = 5000;
-    //public static final int NUMBER_CELLS_BY_COORD = 1000;
-    protected MovesMatrixLoading.MMLResult mmlResult;
-    public static class MMLResult extends LoadingContent.Result {
-        public SortedMap<Long, Node> nodes;
-        public SortedMap<Long, Road> roads;
-        public int[][] startMatrix;
+    public static final int NUMBER_CELLS_BY_COORD = 127;
 
-        public int[][] endMatrix;
-        public int maxStartValue;
-
-        public int maxEndValue;
+    protected FullMatrixLoading.FMLResult fmlResult;
+    public static class FMLResult extends Result {
+        public int[][] matrix;
+        public int maxValue;
     }
 
-    public MovesMatrixLoading() {
-        super(new MovesMatrixLoading.MMLResult());
+    public FullMatrixLoading() {
+        super(new FullMatrixLoading.FMLResult());
 
-        mmlResult = (MovesMatrixLoading.MMLResult) result;
+        fmlResult = (FullMatrixLoading.FMLResult) result;
     }
 
     @Override
     protected final void init() {
-        percentage = 0.f;
-        step = "Request data of Parma";
-        String data = SceneConstants.requestData();
-
-        step = "Parse nodes";
-        percentage = 0.1f;
-
-        if (data == null)
-            return;
-
-        mmlResult.nodes = new TreeMap<>();
-        mmlResult.roads = new TreeMap<>();
-
-        JSONObject jsonObject = new JSONObject(data);
+        step = "Get csv of scooters moves";
+        percentage = 0.0f;
 
         Vector4f boundaries = SceneConstants.BOUNDARIES;
-
-        SceneConstants.parseNode(jsonObject, mmlResult.nodes, boundaries);
-
-        step = "Create graph and parse roads";
-        percentage = 0.15f;
-
-        Graph graph = new Graph();
-        for (Node node : mmlResult.nodes.values()) {
-            graph.add(node);
-        }
-
-        SceneConstants.parseRoad(jsonObject, mmlResult.roads, mmlResult.nodes, boundaries);
-
-        step = "Get csv of scooters moves";
-        percentage = 0.2f;
 
         Vector2f diff = new Vector2f(boundaries.z - boundaries.x, boundaries.w - boundaries.y);
 
         Vector2i numbers_cells = new Vector2i(
-                (int)(Math.ceil(diff.x * NUMBER_CELLS_BY_COORD)),
-                (int)(Math.ceil(diff.y * NUMBER_CELLS_BY_COORD))
+                (int)(Math.ceil(diff.x * FullMatrixLoading.NUMBER_CELLS_BY_COORD)),
+                (int)(Math.ceil(diff.y * FullMatrixLoading.NUMBER_CELLS_BY_COORD))
         );
 
-        mmlResult.startMatrix = new int[numbers_cells.y][numbers_cells.x];
-        mmlResult.endMatrix = new int[numbers_cells.y][numbers_cells.x];
-
+        fmlResult.matrix = new int[numbers_cells.y * numbers_cells.x][numbers_cells.y * numbers_cells.x];
         CSVFile csvFile = Resources.getInstance().getResource(CSVFile.class, "Noleggi_Parma_2022");
-        String paths = DataFolder.getFileContent("scooters-path.txt");
 
-        if (csvFile != null && paths != null) {
+        if (csvFile != null) {
             step = "Scooter path parsing : 0 / " + csvFile.size();
             percentage = 0.5f;
-
-            String[] splitPath = paths.split(";");
             float scooterLoadingPercentage = 0.01f;
 
             for (int i = 0; i < csvFile.size(); ++i) {
@@ -106,21 +60,18 @@ public class MovesMatrixLoading extends LoadingContent {
                     && (SceneConstants.inBoundaries(boundaries, endPosition))) {
 
                     Vector2i startCellPosition = new Vector2i(
-                            (int) ((startPosition.x - boundaries.x) * NUMBER_CELLS_BY_COORD),
-                            (int) ((startPosition.y - boundaries.y) * NUMBER_CELLS_BY_COORD)
+                            (int) ((startPosition.x - boundaries.x) * FullMatrixLoading.NUMBER_CELLS_BY_COORD),
+                            (int) ((startPosition.y - boundaries.y) * FullMatrixLoading.NUMBER_CELLS_BY_COORD)
                     );
-
-                    if (++mmlResult.startMatrix[startCellPosition.y][startCellPosition.x] > mmlResult.maxStartValue)
-                        mmlResult.maxStartValue = mmlResult.startMatrix[startCellPosition.y][startCellPosition.x];
-
                     Vector2i endCellPosition = new Vector2i(
-                            (int) ((endPosition.x - boundaries.x) * NUMBER_CELLS_BY_COORD),
-                            (int) ((endPosition.y - boundaries.y) * NUMBER_CELLS_BY_COORD)
+                            (int) ((endPosition.x - boundaries.x) * FullMatrixLoading.NUMBER_CELLS_BY_COORD),
+                            (int) ((endPosition.y - boundaries.y) * FullMatrixLoading.NUMBER_CELLS_BY_COORD)
                     );
 
-                    if (++mmlResult.endMatrix[endCellPosition.y][endCellPosition.x] > mmlResult.maxEndValue)
-                        mmlResult.maxEndValue = mmlResult.endMatrix[endCellPosition.y][endCellPosition.x];
-
+                    if (++fmlResult.matrix[startCellPosition.y * numbers_cells.x + startCellPosition.x]
+                            [endCellPosition.y * numbers_cells.x + endCellPosition.x] > fmlResult.maxValue)
+                        fmlResult.maxValue = fmlResult.matrix[startCellPosition.y * numbers_cells.x + startCellPosition.x]
+                                [endCellPosition.y * numbers_cells.x + endCellPosition.x];
                 }
 
                 if (i > scooterLoadingPercentage * csvFile.size()){

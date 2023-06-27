@@ -124,7 +124,7 @@ public class ScooterSimulationLoading extends LoadingContent{
                 if (i > scooterLoadingPercentage * csvFile.size()){
                     scooterLoadingPercentage += 0.01f;
 
-                    step = "Scooter path parsing : " + (int)(scooterLoadingPercentage * csvFile.size())
+                    step = "Scooter path parsing : " + (int)(scooterLoadingPercentage * splitPath.length + 1)
                             + " / " + splitPath.length + " (" + csvFile.size() + ")";;
                     percentage = 0.2f + 0.8f * scooterLoadingPercentage;
                 }

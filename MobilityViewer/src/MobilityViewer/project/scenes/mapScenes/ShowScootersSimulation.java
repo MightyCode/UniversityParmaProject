@@ -27,18 +27,22 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
     private long startTime;
     private long currentTime;
 
+    private float scooterSize;
+
     private boolean playing;
     private RectangleRenderer UIBackground;
     private Text currentTimeText, speedText;
     private Slider timeSlider, speedSlider;
 
     public ShowScootersSimulation() {
-        super(new ScooterSimulationLoading());
+        super(new ScooterSimulationLoading(),
+                "Object size up / down : u / j\n");
     }
 
     @Override
     public void initialize(String[] args) {
         super.initialize(args);
+        scooterSize = 10f;
     }
 
     @Override
@@ -107,6 +111,8 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
         mapCamera.setZoomLevel(new Vector2f(mapCamera.getZoomLevel()).mul(factor));
         nodeRenderer.updateNodes(loadingResult.nodes.values(), boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
         roadRenderer.updateNodes(loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+
+        Scooter.Size = scooterSize / mapCamera.getZoomLevel().x;
     }
 
     @Override
@@ -133,9 +139,9 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
             mapCamera.moveYinZoom( -mouseManager.posY() + mouseManager.oldPosY());
         }
 
-        if (inputManager.inputPressed(ActionId.RIGHT_CLICK)){
+        if (inputManager.inputPressed(ActionId.RIGHT_CLICK))
             isDragging = true;
-        }
+
 
         if (inputManager.inputPressed(ActionId.SHIFT)) {
             mapCamera.setZoomReference(EDirection.None);
@@ -145,15 +151,15 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
         SceneMap.moves(mapCamera, inputManager);
 
         speedSlider.update();
-        if (speedSlider.isGettingDragged()){
-            speedText.setText("x" + Math.pow(10, speedSlider.getCurrentValue()));
-        }
+        if (speedSlider.isGettingDragged())
+            speedText.setText("x" + ((int)Math.pow(10, speedSlider.getCurrentValue())));
+
 
         timeSlider.update();
         if (playing) {
-            if (timeSlider.isGettingDragged()) {
+            if (timeSlider.isGettingDragged())
                 currentTime = (long) timeSlider.getCurrentValue();
-            } else {
+            else {
                 currentTime += GameTime.DeltaTime() * Math.pow(10, speedSlider.getCurrentValue()) * BASE_TIME_SPEED;
                 timeSlider.setValue(currentTime);
             }
@@ -163,6 +169,16 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
 
         for (Scooter scooter : loadingResult.scooters)
             scooter.update(currentTime, boundaries, displayBoundaries);
+
+        if (inputManager.getState(ActionId.OBJECT_SIZE_UP)){
+            scooterSize *= 1.005f;
+            Scooter.Size = scooterSize / mapCamera.getZoomLevel().x;
+        }
+
+        if (inputManager.getState(ActionId.OBJECT_SIZE_DOWN)){
+            scooterSize /= 1.005f;
+            Scooter.Size = scooterSize / mapCamera.getZoomLevel().x;
+        }
     }
 
     @Override

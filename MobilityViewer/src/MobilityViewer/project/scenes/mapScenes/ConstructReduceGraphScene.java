@@ -2,6 +2,7 @@ package MobilityViewer.project.scenes.mapScenes;
 
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
+import MobilityViewer.project.display.Scooter;
 import MobilityViewer.project.scenes.loadingContent.ReducedGraphLoading;
 import MobilityViewer.project.display.NodeRenderer;
 import MobilityViewer.project.display.RoadRenderer;
@@ -15,13 +16,18 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
     private NodeRenderer<NodeSubIntersection> subNodeRenderer;
     private RoadRenderer roadRenderer;
 
+    private boolean showSubNodeRendererBelow;
+
     public ConstructReduceGraphScene(){
-        super(new ReducedGraphLoading());
+        super(new ReducedGraphLoading(),
+                "Object size up / down : u / j\n" +
+                "Switch display order : space\n");
     }
 
     @Override
     public void initialize(String[] args) {
         super.initialize(args);
+        showSubNodeRendererBelow = true;
     }
 
     @Override
@@ -91,14 +97,36 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
         }
 
         move(mapCamera, inputManager);
+
+        if (inputManager.getState(ActionId.OBJECT_SIZE_UP)){
+            nodeRenderer.setNodeSize(nodeRenderer.getNodeSize() * 1.005f);
+            subNodeRenderer.setNodeSize(subNodeRenderer.getNodeSize() * 1.005f);
+            zoom(new Vector2f(1));
+        }
+
+        if (inputManager.getState(ActionId.OBJECT_SIZE_DOWN)){
+            nodeRenderer.setNodeSize(nodeRenderer.getNodeSize() / 1.005f);
+            subNodeRenderer.setNodeSize(subNodeRenderer.getNodeSize() / 1.005f);
+            zoom(new Vector2f(1));
+        }
+
+        if (inputManager.inputPressed(ActionId.SWITCH))
+            showSubNodeRendererBelow = !showSubNodeRendererBelow;
     }
 
 
     @Override
     public void displayAL() {
-        subNodeRenderer.display();
-        nodeRenderer.display();
+        if (showSubNodeRendererBelow) {
+            subNodeRenderer.display();
+            nodeRenderer.display();
+        } else {
+            nodeRenderer.display();
+            subNodeRenderer.display();
+        }
+
         roadRenderer.display();
+
     }
 
     @Override

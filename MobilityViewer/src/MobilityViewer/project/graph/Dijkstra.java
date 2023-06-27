@@ -3,110 +3,87 @@ package MobilityViewer.project.graph;
 import java.util.*;
 
 public class Dijkstra {
-    /*private final Map<Long, Float> shortestDistances; // Cache to store shortest distances
-    private final Set<Long> visitedNodes;
+    public static List<Node> findShortestPathReduced(ReducedGraph graph, Node startNode, Node endNode){
+        if (startNode == endNode)
+            return new ArrayList<>();
 
-    public Dijkstra() {
-        shortestDistances = new HashMap<>();
-        visitedNodes = new HashSet<>();
-    }
+        NodeIntersection startIntersection = null, endIntersection = null;
 
-    public List<Node> findShortestPath(Graph graph, Node source, Node destination) {
-        if (!graph.contains(source) || !graph.contains(destination)) {
-            throw new IllegalArgumentException("Source or destination node not found in the graph.");
-        }
+        for(NodeIntersection intersection : graph.getNodes()){
+            if (intersection.getId() == startNode.getId())
+                startIntersection = intersection;
 
-        // Check the cache for the shortest distance
-        long cacheKey = getCacheKey(source.getId(), destination.getId());
-        if (shortestDistances.containsKey(cacheKey)) {
-            return reconstructPath(graph, source, destination);
-        }
+            if (intersection.getId() == endNode.getId())
+                endIntersection = intersection;
 
-        shortestDistances.clear();
-        visitedNodes.clear();
+            for (NodeIntersectionList list : intersection.getNodes()){
+                if (list.containsId(startNode.getId())) {
+                    if (list.getReferenceNodeFrom() == endIntersection)
+                        startIntersection = list.getReferenceNodeTo();
+                    else
+                        startIntersection = list.getReferenceNodeFrom();
+                }
 
-        // Initialize the shortest distances with infinity except for the source node
-        for (Node node : graph.getNodes()) {
-            if (node == source) {
-                shortestDistances.put(node.getId(), 0f);
-            } else {
-                shortestDistances.put(node.getId(), Float.POSITIVE_INFINITY);
+                if (list.containsId(endNode.getId())){
+                    if (list.getReferenceNodeFrom() == startIntersection)
+                        endIntersection = list.getReferenceNodeTo();
+                    else
+                        endIntersection = list.getReferenceNodeFrom();
+                }
             }
+
+            if (startIntersection != null && endIntersection != null)
+                break;
         }
 
-        // Visit nodes in order of their shortest distance
-        while (!visitedNodes.contains(destination.getId())) {
-            Node currentNode = getClosestUnvisitedNode(graph);
-            visitedNodes.add(currentNode.getId());
+        Map<NodeIntersection, Float> distances = new HashMap<>();
+        Map<NodeIntersection, NodeIntersection> previousNodes = new HashMap<>();
+        PriorityQueue<NodeIntersection> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
+        Set<NodeIntersection> visited = new HashSet<>();
 
-            // Update the shortest distances of neighboring nodes
-            for (Node neighbor : currentNode.getNodes()) {
-                if (!visitedNodes.contains(neighbor.getId())) {
-                    float distance = currentNode.getDist(neighbor) + shortestDistances.get(currentNode.getId());
-                    if (distance < shortestDistances.get(neighbor.getId())) {
-                        shortestDistances.put(neighbor.getId(), distance);
-                    }
+        for (NodeIntersection node : graph.getNodes()) {
+            distances.put(node, Float.MAX_VALUE);
+            previousNodes.put(node, null);
+        }
+
+        distances.put(startIntersection, 0f);
+        priorityQueue.offer(startIntersection);
+
+        while (!priorityQueue.isEmpty()) {
+            NodeIntersection currentNode = priorityQueue.poll();
+
+            if (currentNode.equals(endIntersection)) {
+                List<NodeIntersection> inters =  reconstructPathIntersection(previousNodes, endIntersection);
+
+                List<Node> result = new ArrayList<>();
+                for(NodeIntersection intersection : inters)
+                    result.add(intersection.getReferenceNode());
+
+                return result;
+            }
+
+            visited.add(currentNode);
+
+            for (NodeIntersectionList neighbor : currentNode.getNodes()) {
+                NodeIntersection to = neighbor.getReferenceNodeTo();
+
+                if (visited.contains(to))
+                    continue;
+
+                float newDistance = distances.get(currentNode) + currentNode.getDist(to);
+
+                if (newDistance < distances.get(to)) {
+                    distances.put(to, newDistance);
+                    previousNodes.put(to, currentNode);
+                    priorityQueue.offer(to);
                 }
             }
         }
 
-        // Cache the shortest distance
-        shortestDistances.put(cacheKey, shortestDistances.get(destination.getId()));
-
-        return reconstructPath(graph, source, destination);
+        return new ArrayList<>();
     }
-
-    private Node getClosestUnvisitedNode(Graph graph) {
-        Node closestNode = null;
-        float shortestDistance = Float.POSITIVE_INFINITY;
-
-        for (Node node : graph.getNodes()) {
-            if (!visitedNodes.contains(node.getId()) && shortestDistances.get(node.getId()) < shortestDistance) {
-                shortestDistance = shortestDistances.get(node.getId());
-                closestNode = node;
-            }
-        }
-
-        return closestNode;
-    }
-
-    private List<Node> reconstructPath(Graph graph, Node source, Node destination) {
-        List<Node> path = new ArrayList<>();
-        Node currentNode = destination;
-
-        while (currentNode != null && currentNode != source) {
-            path.add(0, currentNode);
-            float currentDistance = shortestDistances.get(currentNode.getId());
-
-            for (Node neighbor : currentNode.getNodes()) {
-                if (currentDistance - neighbor.getDist(currentNode) == shortestDistances.get(neighbor.getId())) {
-                    currentNode = neighbor;
-                    break;
-                }
-            }
-        }
-
-        if (currentNode == source) {
-            path.add(0, source);
-        } else {
-            path.clear();
-        }
-
-        return path;
-    }
-
-    private long getCacheKey(long sourceId, long destinationId) {
-        return (sourceId << 32) | destinationId;
-    }*/
-
-    private static Map<String, List<Node>> cache = new HashMap<>();
 
     public static List<Node> findShortestPath(Graph graph, Node startNode, Node endNode) {
-        String cacheKey = startNode.getId() + "-" + endNode.getId();
-        if (cache.containsKey(cacheKey)) {
-            return cache.get(cacheKey);
-        }
-
         Map<Node, Float> distances = new HashMap<>();
         Map<Node, Node> previousNodes = new HashMap<>();
         PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
@@ -123,11 +100,8 @@ public class Dijkstra {
         while (!priorityQueue.isEmpty()) {
             Node currentNode = priorityQueue.poll();
 
-            if (currentNode.equals(endNode)) {
-                List<Node> shortestPath = reconstructPath(previousNodes, endNode);
-                cache.put(cacheKey, shortestPath);
-                return shortestPath;
-            }
+            if (currentNode.equals(endNode))
+                return reconstructPath(previousNodes, endNode);
 
             visited.add(currentNode);
 
@@ -151,6 +125,19 @@ public class Dijkstra {
     private static List<Node> reconstructPath(Map<Node, Node> previousNodes, Node endNode) {
         List<Node> path = new ArrayList<>();
         Node currentNode = endNode;
+
+        while (currentNode != null) {
+            path.add(0, currentNode);
+            currentNode = previousNodes.get(currentNode);
+        }
+
+        return path;
+    }
+
+    private static List<NodeIntersection> reconstructPathIntersection(
+            Map<NodeIntersection, NodeIntersection> previousNodes, NodeIntersection endNode) {
+        List<NodeIntersection> path = new ArrayList<>();
+        NodeIntersection currentNode = endNode;
 
         while (currentNode != null) {
             path.add(0, currentNode);

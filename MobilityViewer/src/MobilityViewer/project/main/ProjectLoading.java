@@ -54,12 +54,6 @@ class ProjectLoading implements IProjectLoading {
                                 new InputSimple(GLFW_KEY_DOWN, EInputType.Keyboard)
                         )),
 
-                new ActionInput(ActionId.MOVE_FORWARD, "MOVE FORWARD",
-                        new InputSimple(GLFW_KEY_SPACE, EInputType.Keyboard)),
-
-                new ActionInput(ActionId.MOVE_BACKWARD, "MOVE BACKWARD",
-                        new InputSimple(GLFW_KEY_LEFT_CONTROL, EInputType.Keyboard)),
-
                 new ActionInput(ActionId.SHIFT, "SHIFT",
                         new InputSimple(GLFW_KEY_LEFT_SHIFT, EInputType.Keyboard)),
 
@@ -92,6 +86,12 @@ class ProjectLoading implements IProjectLoading {
 
                 new ActionInput(ActionId.SWITCH, "SWITCH",
                         new InputSimple(GLFW_KEY_SPACE, EInputType.Keyboard)),
+
+                new ActionInput(ActionId.OBJECT_SIZE_UP, "OBJECT_SIZE_UP",
+                        new InputSimple(GLFW_KEY_U, EInputType.Keyboard)),
+
+                new ActionInput(ActionId.OBJECT_SIZE_DOWN, "OBJECT_SIZE_DOWN",
+                        new InputSimple(GLFW_KEY_J, EInputType.Keyboard))
         };
 
         inputManager.init(configurations);

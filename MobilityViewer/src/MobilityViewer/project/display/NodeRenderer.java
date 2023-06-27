@@ -40,6 +40,10 @@ public class NodeRenderer<T extends PositionListNode<?>> {
         this.nodeSize = nodeSize;
     }
 
+    public float getNodeSize() {
+        return nodeSize;
+    }
+
     public void init(Collection<T> nodes){
         int [] ebo = new int[EBO_SHIFT  * nodes.size()];
         int [] eboValues = new int[]{ 0, 1, 2, 0, 2, 3 };
