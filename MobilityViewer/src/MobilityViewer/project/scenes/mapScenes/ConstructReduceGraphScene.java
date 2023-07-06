@@ -2,7 +2,6 @@ package MobilityViewer.project.scenes.mapScenes;
 
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
-import MobilityViewer.project.display.Scooter;
 import MobilityViewer.project.scenes.loadingContent.ReducedGraphLoading;
 import MobilityViewer.project.display.NodeRenderer;
 import MobilityViewer.project.display.RoadRenderer;

@@ -81,10 +81,10 @@ public abstract class SceneMap<T extends LoadingContent, K extends LoadingConten
                 .setAlignment(ETextAlignment.Left)
                 .setReference(EDirection.LeftUp)
                 .setFontSize(20)
-                .setPosition(new Vector2f(windowSize.x * 0.01f, windowSize.y * 0.1f))
+                .setPosition(new Vector2f(windowSize.x * 0.01f, windowSize.y * 0.3f))
                 .setText(       "Zoom in/out (to mouse cursor) : mouse wheel\n" +
                                 "Zoom only Y-axis : shift + zoom\n" +
-                                "Move around : arrows or WASD / QZSD\n" +
+                                "Move around : arrows or WASD / ZQSD\n" +
                                 "Show / hide help : h\n" +
                                 furtherInstruction +
                                 "Quit scene : esc"

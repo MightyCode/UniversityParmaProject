@@ -34,6 +34,9 @@ public class ExportScooterPathLoading extends LoadingContent{
 
         String data = SceneConstants.requestData();
 
+        if (interrupted())
+            return;
+
         if (data == null)
             return;
 
@@ -61,8 +64,10 @@ public class ExportScooterPathLoading extends LoadingContent{
         System.out.println("Ratio : " + (total * 1.0f / nodes.size()));
 
         Graph graph = new Graph();
-        for (Node node : nodes.values())
+        for (Node node : nodes.values()) {
             graph.add(node);
+
+        }
 
         nodes.clear();
         for (Node node : graph.getNodes())
@@ -79,6 +84,9 @@ public class ExportScooterPathLoading extends LoadingContent{
 
         CSVFile csvFile = Resources.getInstance().getResource(CSVFile.class, "Noleggi_Parma_2022");
         StringBuilder export = new StringBuilder();
+
+        if (interrupted())
+            return;
 
         step = "Scooter path creation : 0 / " + csvFile.size();
         percentage = 0.0005f;

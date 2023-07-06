@@ -46,6 +46,9 @@ public class MovesMatrixLoading extends LoadingContent {
         step = "Parse nodes";
         percentage = 0.1f;
 
+        if (interrupted())
+            return;
+
         if (data == null)
             return;
 

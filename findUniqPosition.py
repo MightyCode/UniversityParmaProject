@@ -42,12 +42,13 @@ if __name__ == "__main__":
 
         print("Number case different : ", index * 2, "Number of different start lat", len(test))
 
-        """start_lat = []
+        start_lat = []
         start_lon = []
 
         stop_lat = []
         stop_lon = []
 
+        """
         # Display
         for uniq_position in uniq_positions:
             if uniq_position[2] > 0:
@@ -56,12 +57,13 @@ if __name__ == "__main__":
 
             if uniq_position[3] > 0:
                 stop_lat.append(uniq_position[0])
-                stop_lon.append(uniq_position[1])"""
+                stop_lon.append(uniq_position[1])
 
         
         plt.scatter(stop_lon, stop_lat, color='magenta', s=4)
         plt.scatter(start_lon, start_lat, color='green', s=4)
-
+        """
+        
         # Set the axis labels and title
         plt.xlabel('Longitude')
         plt.ylabel('Latitude')

@@ -109,7 +109,7 @@ if __name__ == "__main__":
                 road_lat.append(corresponding_node['lat'])
             
 
-            #plt.plot(road_lon, road_lat, color='yellow', linewidth=1)  # Plot the road as a gray line
+            plt.plot(road_lon, road_lat, color='yellow', linewidth=1)  # Plot the road as a gray line
 
         element_done += 1
         if (element_done > percentage * number):
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     else :
         out_file_name += "-normal"
 
-    plotCentroidsArrow.draw_centroids_arrows(out_file_name, 350, 0, time_in_day, include_time, standardized_data)
+    #plotCentroidsArrow.draw_centroids_arrows(out_file_name, 350, 0, time_in_day, include_time, standardized_data)
 
     # Set the axis labels and title
     plt.xlabel('Longitude')

@@ -130,6 +130,16 @@
 				"lightDir",
 				"lightColor"
 			]
+		},
+		"multiColoredRectangle2D" : {
+			"files": [
+				"geometry/multiColoredRectangle2DV.glsl",
+				"geometry/multiColoredRectangle2DG.glsl",
+				"geometry/multiColoredRectangle2DF.glsl"
+			],
+			"mode" : "2D",
+			"links": [
+			]
 		}
 	}
 }

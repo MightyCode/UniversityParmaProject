@@ -31,6 +31,9 @@ public class ParmaShowPointLoading extends LoadingContent {
         step = "Request data of Parma";
         String data = SceneConstants.requestData();
 
+        if (interrupted())
+            return;
+
         step = "Parse nodes";
         percentage = 0.33f;
 
@@ -46,12 +49,18 @@ public class ParmaShowPointLoading extends LoadingContent {
 
         SceneConstants.parseNode(jsonObject, pspResult.nodes, boundaries);
 
+        if (interrupted())
+            return;
+
         step = "Create graph and parse roads";
         percentage = 0.66f;
 
         Graph graph = new Graph();
         for (Node node : pspResult.nodes.values()) {
             graph.add(node);
+
+            if (interrupted())
+                return;
         }
 
         SceneConstants.parseRoad(jsonObject, pspResult.roads, pspResult.nodes, boundaries);

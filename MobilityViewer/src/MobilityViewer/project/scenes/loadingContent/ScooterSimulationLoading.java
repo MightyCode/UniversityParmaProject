@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class ScooterSimulationLoading extends LoadingContent{
+public class ScooterSimulationLoading extends LoadingContent {
 
     protected ScooterSimulationLoading.SSLResult sslResult;
 
@@ -43,6 +43,9 @@ public class ScooterSimulationLoading extends LoadingContent{
 
         step = "Parse nodes";
         percentage = 0.025f;
+
+        if (interrupted())
+            return;
 
         if (data == null)
             return;
@@ -73,6 +76,9 @@ public class ScooterSimulationLoading extends LoadingContent{
         sslResult.scooters = new ArrayList<>();
         CSVFile csvFile = Resources.getInstance().getResource(CSVFile.class, "Noleggi_Parma_2022");
         String paths = DataFolder.getFileContent("scooters-path.txt");
+
+        if (interrupted())
+            return;
 
         if (csvFile != null && paths != null) {
             String[] splitPath = paths.split(";");

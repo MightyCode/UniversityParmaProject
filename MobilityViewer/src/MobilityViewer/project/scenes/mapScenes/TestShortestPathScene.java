@@ -69,6 +69,10 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
         pathRenderer.updateNodes(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         path = Dijkstra.findShortestPathReduced(reducedGraph, from, to);
+
+        if (path.size() == 0)
+            return;
+
         previous = path.get(0);
         previous = new Node(previous.getId(), previous.getPosition().x, previous.getPosition().y);
         pathNodes.put(previous.getId(), previous);

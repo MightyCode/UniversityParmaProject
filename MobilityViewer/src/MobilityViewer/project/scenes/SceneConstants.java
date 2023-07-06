@@ -81,6 +81,10 @@ public abstract class SceneConstants {
     }
 
     public static String requestData(){
+        return requestData(false);
+    }
+
+    public static String requestData(boolean includeAllTypeOfRoad){
         if (DataFolder.fileExists(PARMA_SAVE_POINT)){
             String data = DataFolder.getFileContent(PARMA_SAVE_POINT);
 
@@ -92,16 +96,15 @@ public abstract class SceneConstants {
             System.out.println("Parma data doesn't exists, requesting ...");
         }
 
-        boolean showOnlyHighway = false;
         String overpass_query = "";
 
-        if (showOnlyHighway) {
+        if (includeAllTypeOfRoad) {
             overpass_query = "[out:json];\n" +
                     "area[name=\"Parma\"]->.a;\n" +
                     "(\n" +
-                    "way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential)$\"];\n" +
+                    "way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|bicycle|service|living_street|pedestrian|footway|cycleway|bus_guideway)$\"];\n" +
                     "node(w)->.nodes;\n" +
-                    "way(bn.nodes)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential)$\"];\n" +
+                    "way(bn.nodes)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|bicycle|service|living_street|pedestrian|footway|cycleway|bus_guideway)$\"];\n" +
                     ");\n" +
                     "out body;\n" +
                     ">;\n" +
@@ -110,9 +113,9 @@ public abstract class SceneConstants {
             overpass_query = "[out:json];\n" +
                     "area[name=\"Parma\"]->.a;\n" +
                     "(\n" +
-                    "way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential)$\"];\n" +
+                    "way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|bicycle|living_street|cycleway)$\"];\n" +
                     "node(w)->.nodes;\n" +
-                    "way(bn.nodes)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential)$\"];\n" +
+                    "way(bn.nodes)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|bicycle|living_street|cycleway)$\"];\n" +
                     ");\n" +
                     "out body;\n" +
                     ">;\n" +

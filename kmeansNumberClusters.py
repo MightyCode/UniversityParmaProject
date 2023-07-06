@@ -25,7 +25,7 @@ if __name__ == "__main__" :
     np.random.shuffle(X)
 
     scores = []
-    ranged = range(1, 101, 1)
+    ranged = range(2, 10, 1)
     for i in ranged:
         kmeans = KMeansK(n_clusters=i, max_iter=num_iter, n_init=10)
         labels = kmeans.fit_predict(X)

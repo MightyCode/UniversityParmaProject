@@ -14,7 +14,6 @@ public class ShaderValue implements Cloneable {
     protected Object object;
 
     protected final Class<?> type;
-
     private boolean shouldForceUpdate;
 
     public ShaderValue(String a, Class<?> type, Object object){
@@ -66,6 +65,10 @@ public class ShaderValue implements Cloneable {
 
     public Class<?> getType() {
         return type;
+    }
+
+    public <T> T getObjectTyped(Class<T> objectType){
+        return objectType.cast(object);
     }
 
     @Override

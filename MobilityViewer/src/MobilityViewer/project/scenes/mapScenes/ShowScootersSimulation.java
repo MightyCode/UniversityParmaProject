@@ -1,12 +1,16 @@
 package MobilityViewer.project.scenes.mapScenes;
 
+import MobilityViewer.mightylib.graphics.GUI.BackgroundlessButton;
+import MobilityViewer.mightylib.graphics.GUI.GUIList;
 import MobilityViewer.mightylib.graphics.renderer._2D.shape.RectangleRenderer;
 import MobilityViewer.mightylib.graphics.text.ETextAlignment;
 import MobilityViewer.mightylib.graphics.text.Text;
 import MobilityViewer.mightylib.main.GameTime;
 import MobilityViewer.mightylib.util.math.Color4f;
+import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.mightylib.util.math.MathTime;
+import MobilityViewer.project.TickTranslator;
 import MobilityViewer.project.scenes.loadingContent.ScooterSimulationLoading;
 import MobilityViewer.project.display.GUI.HorizontalSlider;
 import MobilityViewer.project.display.GUI.Slider;
@@ -20,11 +24,15 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, ScooterSimulationLoading.SSLResult> {
-    private static final float BASE_TIME_SPEED = 10000000;
+    private static final long BASE_TIME_SPEED = 1000000;
+
+    public static TickTranslator TRANSLATOR;
+
     private NodeRenderer<Node> nodeRenderer;
     private RoadRenderer roadRenderer;
 
     private long startTime;
+    private long endTime;
     private long currentTime;
 
     private float scooterSize;
@@ -33,6 +41,11 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
     private RectangleRenderer UIBackground;
     private Text currentTimeText, speedText;
     private Slider timeSlider, speedSlider;
+    private GUIList chooseTime;
+
+    private BackgroundlessButton timeInYear, timeInMonth, timeInWeek, timeInDay;
+
+    private String pattern;
 
     public ShowScootersSimulation() {
         super(new ScooterSimulationLoading(),
@@ -48,6 +61,8 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
     @Override
     public void endLoading(){
         playing = true;
+
+        TRANSLATOR = new TickTranslator.BaseTickTranslator();
 
         currentTimeText = new Text();
         currentTimeText.setFont("bahnschrift")
@@ -66,14 +81,10 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
                 .setText("x1");
 
         this.startTime = MathTime.datetimeStrToTick("2022-01-01 00:00:00");
+        this.endTime = MathTime.datetimeStrToTick("2022-12-31 23:59:59");
         currentTime = 0;
 
-        timeSlider = new HorizontalSlider(main2DCamera, inputManager, mouseManager,
-                new Vector2f(windowSize.x * 0.2f, windowSize.y * 0.9f),
-                new Vector2f(windowSize.x * 0.6f, windowSize.y * 0.1f),
-                0,
-                MathTime.datetimeStrToTick("2022-12-31 23:59:59") -  startTime
-        );
+        createTimeSlider(currentTime);
 
         speedSlider = new HorizontalSlider(main2DCamera, inputManager, mouseManager,
                 new Vector2f(windowSize.x * 0.78f, windowSize.y * 0f),
@@ -102,8 +113,101 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
         roadRenderer.updateNodes(
                 loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
-        for (Scooter scooter : loadingResult.scooters)
-            scooter.initRenderer(mapCamera);
+        Scooter.initRenderer(mapCamera);
+
+        chooseTime = new GUIList(inputManager, mouseManager);
+
+        timeInYear = new BackgroundlessButton(mainContext);
+        timeInYear.Text.setFont("bahnschrift")
+                .setAlignment(ETextAlignment.Center)
+                .setReference(EDirection.Down)
+                .setPosition(new Vector2f(windowSize.x * 0.95f, windowSize.y * 0.8f))
+                .setFontSize(20)
+                .setText("Time in year");
+
+        timeInYear.Text.copyTo(timeInYear.OverlapsText);
+        timeInYear.OverlapsText.setColor(new Color4f(0.3f))
+                .setText("->Time in year<-");
+
+        timeInMonth = timeInYear.copy();
+        timeInMonth.Text.setPosition(new Vector2f(windowSize.x * 0.95f, windowSize.y * 0.85f))
+                .setText("Time in month");
+
+        timeInMonth.Text.copyTo(timeInMonth.OverlapsText);
+        timeInMonth.OverlapsText.setColor(new Color4f(0.3f))
+                .setText("->Time in month<-");
+
+        timeInWeek = timeInYear.copy();
+        timeInWeek.Text.setPosition(new Vector2f(windowSize.x * 0.95f, windowSize.y * 0.9f))
+                .setText("Time in week");
+
+        timeInWeek.Text.copyTo(timeInWeek.OverlapsText);
+        timeInWeek.OverlapsText.setColor(new Color4f(0.3f))
+                .setText("->Time in week<-");
+
+        timeInDay = timeInYear.copy();
+        timeInDay.Text.setPosition(new Vector2f(windowSize.x * 0.95f, windowSize.y * 0.95f))
+                .setText("Time in day");
+
+        timeInDay.Text.copyTo(timeInDay.OverlapsText);
+        timeInDay.OverlapsText.setColor(new Color4f(0.3f))
+                .setText("->Time in day<-");
+
+        chooseTime.GUIs.put(0, timeInYear);
+        chooseTime.GUIs.put(1, timeInMonth);
+        chooseTime.GUIs.put(2, timeInWeek);
+        chooseTime.GUIs.put(3, timeInDay);
+
+        setColor();
+
+        pattern = "dd MMMM yyyy, H 'h' m 'm' s 's'";
+    }
+
+    public void switchToTranslator(TickTranslator tt){
+        TRANSLATOR = tt;
+        currentTime = tt.convert(currentTime);
+        createTimeSlider(currentTime);
+
+        setColor();
+    }
+
+    public void setColor(){
+        timeInYear.Text.setColor(ColorList.Black());
+        timeInYear.OverlapsText.setColor(ColorList.Black());
+
+        timeInMonth.Text.setColor(ColorList.Black());
+        timeInMonth.OverlapsText.setColor(ColorList.Black());
+
+        timeInWeek.Text.setColor(ColorList.Black());
+        timeInWeek.OverlapsText.setColor(ColorList.Black());
+
+        timeInDay.Text.setColor(ColorList.Black());
+        timeInDay.OverlapsText.setColor(ColorList.Black());
+
+        if (TRANSLATOR instanceof TickTranslator.BaseTickTranslator){
+            timeInYear.Text.setColor(ColorList.Red());
+            timeInYear.OverlapsText.setColor(ColorList.Red());
+        } else if (TRANSLATOR instanceof TickTranslator.MonthTickTranslator) {
+            timeInMonth.Text.setColor(ColorList.Red());
+            timeInMonth.OverlapsText.setColor(ColorList.Red());
+        } else if (TRANSLATOR instanceof TickTranslator.WeekTickTranslator) {
+            timeInWeek.Text.setColor(ColorList.Red());
+            timeInWeek.OverlapsText.setColor(ColorList.Red());
+        } else if (TRANSLATOR instanceof TickTranslator.DayTickTranslator) {
+            timeInDay.Text.setColor(ColorList.Red());
+            timeInDay.OverlapsText.setColor(ColorList.Red());
+        }
+    }
+
+    public void createTimeSlider(long init){
+        timeSlider = new HorizontalSlider(main2DCamera, inputManager, mouseManager,
+                new Vector2f(windowSize.x * 0.2f, windowSize.y * 0.9f),
+                new Vector2f(windowSize.x * 0.6f, windowSize.y * 0.1f),
+                0,
+                TRANSLATOR.duration()
+        );
+
+        timeSlider.setValue(init);
     }
 
 
@@ -118,6 +222,33 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
     @Override
     public void updateAfterLoading() {
         checkQuit();
+
+        chooseTime.update();
+        if ((mainContext.getInputManager().inputPressed(ActionId.LEFT_CLICK) && chooseTime.isMouseSelecting())) {
+            Integer id = chooseTime.getSelected();
+            if (id != null) {
+                switch (id) {
+                    default:
+                    case 0:
+                        switchToTranslator(new TickTranslator.BaseTickTranslator());
+                        pattern = "dd MMMM yyyy, H 'h' m 'm' s 's'";
+                        break;
+                    case 1:
+                        switchToTranslator(new TickTranslator.MonthTickTranslator());
+                        pattern = "dd '-' H 'h' m 'm' s 's'";
+                        break;
+                    case 2:
+                        switchToTranslator(new TickTranslator.WeekTickTranslator());
+                        pattern = "EEEE H 'h' m 'm' s 's'";
+                        break;
+                    case 3:
+                        switchToTranslator(new TickTranslator.DayTickTranslator());
+                        pattern = "H 'h' m 'm' s 's'";
+                        break;
+                }
+            }
+        }
+
         if (mouseManager.getMouseScroll().y != 0) {
             mapCamera.setZoomReference(
                     new Vector2f(
@@ -154,7 +285,6 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
         if (speedSlider.isGettingDragged())
             speedText.setText("x" + ((int)Math.pow(10, speedSlider.getCurrentValue())));
 
-
         timeSlider.update();
         if (playing) {
             if (timeSlider.isGettingDragged())
@@ -164,11 +294,9 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
                 timeSlider.setValue(currentTime);
             }
 
-            currentTimeText.setText(MathTime.tickToStr(currentTime + startTime));
+            if (currentTime >= TRANSLATOR.duration())
+                currentTime = TRANSLATOR.duration() - BASE_TIME_SPEED;
         }
-
-        for (Scooter scooter : loadingResult.scooters)
-            scooter.update(currentTime, boundaries, displayBoundaries);
 
         if (inputManager.getState(ActionId.OBJECT_SIZE_UP)){
             scooterSize *= 1.005f;
@@ -179,6 +307,16 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
             scooterSize /= 1.005f;
             Scooter.Size = scooterSize / mapCamera.getZoomLevel().x;
         }
+
+        if (playing) {
+            Scooter.beforeUpdate();
+
+            for (Scooter scooter : loadingResult.scooters)
+                scooter.update(currentTime, boundaries, displayBoundaries);
+
+            currentTimeText.setText(MathTime.tickToCustomizedStr(currentTime + startTime, pattern) +
+                    "\n" + Scooter.getNumberDrawn() + " scooters");
+        }
     }
 
     @Override
@@ -186,16 +324,16 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
         nodeRenderer.display();
         roadRenderer.display();
 
-        for (Scooter scooter : loadingResult.scooters)
-            scooter.display(currentTime);
+        Scooter.display();
 
         UIBackground.display();
         currentTimeText.display();
         timeSlider.display();
 
-
         speedText.display();
         speedSlider.display();
+
+        chooseTime.display();
     }
 
 
@@ -210,9 +348,10 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
         roadRenderer.unload();
         speedSlider.unload();
 
-        for (Scooter scooter : loadingResult.scooters)
-            scooter.unload();
+        Scooter.unload();
 
         timeSlider.unload();
+
+        chooseTime.unload();
     }
 }

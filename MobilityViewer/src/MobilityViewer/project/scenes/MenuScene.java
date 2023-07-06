@@ -10,7 +10,6 @@ import MobilityViewer.mightylib.sounds.SoundSourceCreationInfo;
 import MobilityViewer.mightylib.util.math.Color4f;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.project.main.ActionId;
-import MobilityViewer.project.scenes.loadingContent.FullMatrixLoading;
 import MobilityViewer.project.scenes.mapScenes.*;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
@@ -57,8 +56,6 @@ public class MenuScene extends Scene {
         constructReducedGraph.OverlapsText.setColor(new Color4f(0.3f))
                 .setText("->Parma reduced graph<-");
 
-
-
         BackgroundlessButton testShortestPathButton = parmaScene.copy();
         testShortestPathButton.Text.setPosition(new Vector2f(windowSize.x * 0.25f, windowSize.y * 0.45f))
                 .setText("Test shortest path algorithm");
@@ -101,8 +98,26 @@ public class MenuScene extends Scene {
         fullMatrixScene.OverlapsText.setColor(new Color4f(0.3f))
                 .setText("->Full matrix start/end<-");
 
+        BackgroundlessButton showBikeMovements = parmaScene.copy();
+        showBikeMovements.Text.setPosition(new Vector2f(windowSize.x * 0.75f, windowSize.y * 0.45f))
+                .setText("Show bikes movement");
+
+        showBikeMovements.Text.copyTo(showBikeMovements.OverlapsText);
+        showBikeMovements.OverlapsText.setColor(new Color4f(0.3f))
+                .setText("->Show bikes movement<-");
+
+
+
+        BackgroundlessButton deleteData = parmaScene.copy();
+        deleteData.Text.setPosition(new Vector2f(windowSize.x * 0.3f, windowSize.y * 0.9f))
+                .setText("Delete data");
+
+        deleteData.Text.copyTo(deleteData.OverlapsText);
+        deleteData.OverlapsText.setColor(new Color4f(0.3f))
+                .setText("->Delete data<-");
+
         BackgroundlessButton buttonQuit = parmaScene.copy();
-        buttonQuit.Text.setPosition(new Vector2f(windowSize.x * 0.5f, windowSize.y * 0.9f))
+        buttonQuit.Text.setPosition(new Vector2f(windowSize.x * 0.6f, windowSize.y * 0.9f))
                 .setText("Quit");
 
         buttonQuit.Text.copyTo(buttonQuit.OverlapsText);
@@ -118,10 +133,11 @@ public class MenuScene extends Scene {
         guiList.GUIs.put(4, showScooterSimulation);
         guiList.GUIs.put(5, movesMatrixScene);
         guiList.GUIs.put(6, fullMatrixScene);
+        guiList.GUIs.put(7, showBikeMovements);
         guiList.GUIs.put(-1, buttonQuit);
+        guiList.GUIs.put(-2, deleteData);
         guiList.ShouldLoop = false;
     }
-
 
     public void update() {
         super.update();
@@ -154,8 +170,14 @@ public class MenuScene extends Scene {
                     case 6:
                         sceneManagerInterface.setNewScene(new ConstructFullMatrixScene(), new String[]{""});
                         break;
+                    case 7:
+                        sceneManagerInterface.setNewScene(new ShowBikeMovementsScene(), new String[]{""});
+                        break;
                     case -1:
                         sceneManagerInterface.exit(0);
+                        break;
+                    case -2:
+                        sceneManagerInterface.setNewScene(new DeleteDataScene(), new String[]{""});
                         break;
                 }
             }

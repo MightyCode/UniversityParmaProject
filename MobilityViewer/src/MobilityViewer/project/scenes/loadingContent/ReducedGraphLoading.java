@@ -31,6 +31,9 @@ public class ReducedGraphLoading extends LoadingContent{
 
         String data = SceneConstants.requestData();
 
+        if (interrupted())
+            return;
+
         step = "Parse nodes";
         percentage = 0.2f;
 
