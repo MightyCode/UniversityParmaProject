@@ -32,8 +32,8 @@ public class MatrixRenderer {
         vboPositionIndex = renderer.getShape().addVboFloat(new float[0], 2, Shape.STATIC_STORE);
         vboColorIndex = renderer.getShape().addVboFloat(new float[0], 4, Shape.STATIC_STORE);
 
-        lowValue = new Color4f(1, 1, 1, 1);
-        highValue = new Color4f(0, 0, 0, 1);
+        lowValue = new Color4f(36 / 255f, 252 / 255f, 3 / 255f, 1);
+        highValue = new Color4f(26 / 255f, 77 / 255f, 18 / 255f, 1);
     }
 
 
@@ -45,7 +45,11 @@ public class MatrixRenderer {
         highValue = newValue;
     }
 
-    public void updateNodes(int[][] matrix, float maxValue, Vector4f displayBoundaries){
+    public Color4f heatmap(float value){
+        return new Color4f(Math.min(2 * value, 1.0f), Math.min(2 * value - 1, 1.0f), 0, 1f);
+    }
+
+    public void updateNodes(int[][] matrix, float minValue, float maxValue, Vector4f displayBoundaries){
         float [] position = new float[numberCell * VBO_POSITION_SHIFT];
         float [] colors = new float[numberCell * VBO_COLOR_SHIFT];
         int [] ebo = new int[numberCell * EBO_SHIFT];
@@ -57,17 +61,12 @@ public class MatrixRenderer {
 
         for (int y = 0; y < matrix.length; ++y){
             for (int x = 0; x < matrix[y].length; ++x){
-                Color4f color = new Color4f(
-                        lowValue.getR() + (highValue.getR() - lowValue.getR()) * (matrix[y][x] /  maxValue),
-                        lowValue.getG() + (highValue.getG() - lowValue.getG()) * (matrix[y][x] /  maxValue),
-                        lowValue.getB() + (highValue.getB() - lowValue.getB()) * (matrix[y][x] /  maxValue),
-                        lowValue.getA() + (highValue.getA() - lowValue.getA()) * (matrix[y][x] /  maxValue)
-                );
+
+                Color4f color = heatmap((matrix[y][x] - minValue) / (maxValue - minValue));
 
                 Vector2f leftUpPosition = new Vector2f(
                         displayBoundaries.x + (displayBoundaries.z - displayBoundaries.x) * (x * 1.0f / matrix[y].length),
-                        displayBoundaries.y + (displayBoundaries.w - displayBoundaries.y) * (y * 1.0f / matrix.length)
-                                );
+                        displayBoundaries.y + (displayBoundaries.w - displayBoundaries.y) * (y * 1.0f / matrix.length));
 
                 Vector4f fourPositions = new Vector4f(
                          leftUpPosition.x, leftUpPosition.y,

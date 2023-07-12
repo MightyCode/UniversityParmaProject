@@ -2,27 +2,35 @@ package MobilityViewer.project.scenes.mapScenes;
 
 import MobilityViewer.mightylib.graphics.text.ETextAlignment;
 import MobilityViewer.mightylib.graphics.text.Text;
+import MobilityViewer.mightylib.util.math.Color4f;
+import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.project.display.MatrixRenderer;
 import MobilityViewer.project.display.NodeRenderer;
 import MobilityViewer.project.display.RoadRenderer;
+import MobilityViewer.project.display.TypeSelector;
 import MobilityViewer.project.graph.Node;
+import MobilityViewer.project.main.ETypeData;
 import MobilityViewer.project.scenes.loadingContent.MovesMatrixLoading;
 import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
+
+import java.util.HashMap;
 
 public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLoading.MMLResult>
 {
     private NodeRenderer<Node> nodeRenderer;
     private RoadRenderer roadRenderer;
 
-    private MatrixRenderer startMatrixRenderer;
-    private MatrixRenderer endMatrixRenderer;
+    private HashMap<ETypeData, MatrixRenderer> startMatricesRenderer;
+    private HashMap<ETypeData, MatrixRenderer> endMatricesRenderer;
+    private HashMap<ETypeData, MatrixRenderer> combineMatricesRenderer;
 
-    private boolean shouldShowStartMatrix;
+    private int matrixToShow;
     private boolean shouldShowMap;
-
     private Text currentMatrixDisplayed;
+
+    private TypeSelector<ETypeData> typeSelector;
 
     public MovesMatrixScene() {
         super(new MovesMatrixLoading(),
@@ -46,33 +54,57 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
 
     @Override
     public void endLoading(){
+        typeSelector = new TypeSelector<>(ETypeData.values(), mainContext);
+
         nodeRenderer = new NodeRenderer<>(mapCamera);
+        nodeRenderer.setColor(new Color4f(1, 0, 0, 0.1f));
         nodeRenderer.init(loadingResult.nodes.values());
         nodeRenderer.updateNodes(
                 loadingResult.nodes.values(), boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         roadRenderer = new RoadRenderer(mapCamera);
+        roadRenderer.setColor(new Color4f(0, 0, 1, 0.3f));
         roadRenderer.init(loadingResult.nodes);
         roadRenderer.updateNodes(
                 loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
-        startMatrixRenderer = new MatrixRenderer(mapCamera,
-                loadingResult.startMatrix.length * loadingResult.startMatrix[0].length);
-        startMatrixRenderer.updateNodes(loadingResult.startMatrix, loadingResult.maxStartValue, displayBoundaries);
+        matrixToShow = 0;
 
-        endMatrixRenderer = new MatrixRenderer(mapCamera,
-                loadingResult.endMatrix.length * loadingResult.endMatrix[0].length);
-        endMatrixRenderer.updateNodes(loadingResult.endMatrix, loadingResult.maxEndValue, displayBoundaries);
+        startMatricesRenderer = new HashMap<>();
+        endMatricesRenderer = new HashMap<>();
+        combineMatricesRenderer = new HashMap<>();
+        for (ETypeData key : ETypeData.values()){
+            startMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
+                    loadingResult.startMatrices.get(key).length * loadingResult.startMatrices.get(key)[0].length));
+
+            startMatricesRenderer.get(key)
+                    .updateNodes(loadingResult.startMatrices.get(key),
+                            loadingResult.minStartValues.get(key), loadingResult.maxStartValues.get(key), displayBoundaries);
+
+            endMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
+                    loadingResult.endMatrices.get(key).length * loadingResult.endMatrices.get(key)[0].length));
+
+            endMatricesRenderer.get(key)
+                    .updateNodes(loadingResult.endMatrices.get(key),
+                            loadingResult.minEndValues.get(key), loadingResult.maxEndValues.get(key), displayBoundaries);
+
+            combineMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
+                    loadingResult.combineMatrices.get(key).length * loadingResult.combineMatrices.get(key)[0].length));
+
+            combineMatricesRenderer.get(key)
+                    .updateNodes(loadingResult.combineMatrices.get(key),
+                            loadingResult.minCombineValues.get(key), loadingResult.maxCombineValues.get(key), displayBoundaries);
+        }
 
         currentMatrixDisplayed = new Text();
         currentMatrixDisplayed.setFont("bahnschrift")
                 .setAlignment(ETextAlignment.Center)
                 .setReference(EDirection.None)
+                .setColor(ColorList.LightGreen())
                 .setPosition(new Vector2f(windowSize.x * 0.50f, windowSize.y * 0.05f))
                 .setFontSize(30)
                 .setText("Start matrix");
 
-        shouldShowStartMatrix = true;
         shouldShowMap = true;
     }
 
@@ -113,39 +145,58 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
         move(mapCamera, inputManager);
 
         if (inputManager.inputPressed(ActionId.SWITCH)) {
-            shouldShowStartMatrix = !shouldShowStartMatrix;
+            if (++matrixToShow >= 3){
+                matrixToShow = 0;
+            }
 
-            if (shouldShowStartMatrix)
-                currentMatrixDisplayed.setText("Start Matrix");
-            else
-                currentMatrixDisplayed.setText("End Matrix");
+            switch (matrixToShow){
+                case 0: default:
+                    currentMatrixDisplayed.setText("Start Matrix"); break;
+                case 1:
+                    currentMatrixDisplayed.setText("End Matrix"); break;
+                case 2:
+                    currentMatrixDisplayed.setText("Combine Matrix"); break;
+            }
         }
 
         if (inputManager.inputPressed(ActionId.SHOW_HIDE_MAP))
             shouldShowMap = !shouldShowMap;
+
+        typeSelector.update();
     }
 
     @Override
     public void displayAL() {
-        if (shouldShowStartMatrix)
-            startMatrixRenderer.display();
-        else
-            endMatrixRenderer.display();
+        switch (matrixToShow){
+            case 0: default:
+                startMatricesRenderer.get(typeSelector.getSelected()).display(); break;
+            case 1:
+                endMatricesRenderer.get(typeSelector.getSelected()).display(); break;
+            case 2:
+                combineMatricesRenderer.get(typeSelector.getSelected()).display(); break;
+        }
 
         if (shouldShowMap) {
-            nodeRenderer.display();
+            //nodeRenderer.display();
             roadRenderer.display();
         }
 
         currentMatrixDisplayed.display();
+        typeSelector.display();
     }
 
     @Override
     public void unloadAfterLoading() {
         super.unloadAfterLoading();
 
-        startMatrixRenderer.unload();
-        endMatrixRenderer.unload();
+        typeSelector.unload();
+
+        for (ETypeData key : ETypeData.values()){
+            startMatricesRenderer.get(key).unload();
+            endMatricesRenderer.get(key).unload();
+            combineMatricesRenderer.get(key).unload();
+        }
+
         nodeRenderer.unload();
         roadRenderer.unload();
 

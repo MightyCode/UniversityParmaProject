@@ -1,6 +1,7 @@
 import requests
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 import plotCentroidsArrow
 
@@ -23,7 +24,7 @@ if __name__ == "__main__":
     # Expend bound if necessary
 
     # Read pick up and deposit 
-    df = pd.read_csv('BIT Mobility/Noleggi_Parma_2022.csv')
+    df = pd.read_csv('Data/BIT Mobility/Noleggi_Parma_2022.csv')
     mobility_data = boundaries.filter_pandas_data(df)
     dataParsed = DataParsed(mobility_data)
     standardized_data = dataParsed.standardize_data(mobility_data)
@@ -109,17 +110,19 @@ if __name__ == "__main__":
                 road_lat.append(corresponding_node['lat'])
             
 
-            plt.plot(road_lon, road_lat, color='yellow', linewidth=1)  # Plot the road as a gray line
+            """plt.plot(road_lon, road_lat, color='yellow', linewidth=1)  # Plot the road as a gray line"""
 
         element_done += 1
         if (element_done > percentage * number):
             print("Done ", (100 * percentage), "%")
             percentage += 0.1
 
-    plt.scatter(node_lon, node_lat, color='blue', s=2)
+    #plt.scatter(node_lon, node_lat, color='blue', s=2)
 
-    plt.scatter(mobility_data[:, DataParsed.IN_STOP_LON_COL], mobility_data[:, DataParsed.IN_STOP_LAT_COL], color='magenta', s=4)
-    plt.scatter(mobility_data[:, DataParsed.IN_START_LON_COL], mobility_data[:, DataParsed.IN_START_LAT_COL], color='green', s=4)
+    """plt.scatter(mobility_data[:, DataParsed.IN_STOP_LON_COL], \
+                mobility_data[:, DataParsed.IN_STOP_LAT_COL], color='magenta', s=4)"""
+    plt.scatter(mobility_data[:, DataParsed.IN_START_LON_COL], \
+                mobility_data[:, DataParsed.IN_START_LAT_COL], color='green', s=1)
 
     out_file_name = "out/bit-mobility-centroid"
 
@@ -138,4 +141,24 @@ if __name__ == "__main__":
     plt.title('Node Positions and Roads in Parma')
 
     # Display the plot
+    plt.show()
+
+    heatmap, xedges, yedges = np.histogram2d(
+        mobility_data[:, DataParsed.IN_START_LON_COL],
+        mobility_data[:, DataParsed.IN_START_LAT_COL],
+        bins=100  # Adjust the number of bins as needed
+    )
+
+    # Plot the heatmap
+    plt.imshow(heatmap.T, origin='lower', extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], cmap='hot')
+    plt.show()
+
+    heatmap, xedges, yedges = np.histogram2d(
+        mobility_data[:, DataParsed.IN_STOP_LON_COL],
+        mobility_data[:, DataParsed.IN_STOP_LAT_COL],
+        bins=100  # Adjust the number of bins as needed
+    )
+
+    # Plot the heatmap
+    plt.imshow(heatmap.T, origin='lower', extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], cmap='hot')
     plt.show()

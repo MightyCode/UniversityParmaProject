@@ -11,7 +11,7 @@ NUMBER_CELLS_BY_COORD = 1000
 if __name__ == "__main__":
     boundaries = Boundaries(False)
 
-    df = pd.read_csv('BIT Mobility/Noleggi_Parma_2022.csv')
+    df = pd.read_csv('Data/BIT Mobility/Noleggi_Parma_2022.csv')
     mobility_data = boundaries.filter_pandas_data(df)
 
     diff_lon = boundaries.max_lon() - boundaries.min_lon()

@@ -1,5 +1,7 @@
 package MobilityViewer.project.scenes.mapScenes;
 
+import MobilityViewer.mightylib.graphics.text.ETextAlignment;
+import MobilityViewer.mightylib.graphics.text.Text;
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.project.display.NodeRenderer;
@@ -15,6 +17,8 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
 
     private RoadRenderer pathRenderer;
     private int currentPathDisplayed;
+
+    private Text currentPathDisplayedText;
 
     public ShowBikeMovementsScene() {
         super(new BikeMovementLoading(), "Show / Hide stations : space\n");
@@ -48,10 +52,21 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
                 loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         pathRenderer = new RoadRenderer(mapCamera);
+
+        currentPathDisplayedText = new Text();
+        currentPathDisplayedText.setFont("bahnschrift")
+                .setAlignment(ETextAlignment.Center)
+                .setReference(EDirection.Up)
+                .setPosition(new Vector2f(windowSize.x * 0.5f, windowSize.y * 0.01f))
+                .setFontSize(30)
+                .setText("");
+
         updatePathRenderer();
     }
 
     public void updatePathRenderer(){
+        currentPathDisplayedText.setText("Path displayed : " + (currentPathDisplayed + 1) + "/" + loadingResult.paths.length);
+
         pathRenderer.setColor(ColorList.Green());
         pathRenderer.init(loadingResult.paths[currentPathDisplayed]);
         pathRenderer.updateNodes(loadingResult.paths[currentPathDisplayed],
@@ -108,6 +123,8 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
         nodeRenderer.display();
         roadRenderer.display();
         pathRenderer.display();
+
+        currentPathDisplayedText.display();
     }
 
     @Override
@@ -117,6 +134,7 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
         nodeRenderer.unload();
         roadRenderer.unload();
         pathRenderer.unload();
+        currentPathDisplayedText.unload();
     }
 }
 

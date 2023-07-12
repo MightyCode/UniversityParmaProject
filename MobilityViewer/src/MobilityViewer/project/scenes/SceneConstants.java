@@ -113,9 +113,9 @@ public abstract class SceneConstants {
             overpass_query = "[out:json];\n" +
                     "area[name=\"Parma\"]->.a;\n" +
                     "(\n" +
-                    "way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|bicycle|living_street|cycleway)$\"];\n" +
+                    "way(area.a)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|bicycle)$\"];\n" +
                     "node(w)->.nodes;\n" +
-                    "way(bn.nodes)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|bicycle|living_street|cycleway)$\"];\n" +
+                    "way(bn.nodes)[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|bicycle)$\"];\n" +
                     ");\n" +
                     "out body;\n" +
                     ">;\n" +

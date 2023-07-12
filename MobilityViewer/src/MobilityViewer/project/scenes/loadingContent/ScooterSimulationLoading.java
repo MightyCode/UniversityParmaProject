@@ -120,6 +120,7 @@ public class ScooterSimulationLoading extends LoadingContent {
                             path.add(sslResult.nodes.get(Long.parseLong(idNode.trim())));
                         }
 
+                        System.out.println(path.size());
                         current.init(path);
                         sslResult.scooters.add(current);
                     }

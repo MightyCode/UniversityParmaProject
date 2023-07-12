@@ -1,0 +1,11 @@
+compare the paths
+
+
+one matrix : -1 for starting point + 1 end point.
+absolute matrix : same with + 1.
+
+
+compare paths for bike and dijktra on same path.
+
+
+
