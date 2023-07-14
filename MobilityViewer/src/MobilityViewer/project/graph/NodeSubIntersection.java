@@ -1,11 +1,13 @@
 package MobilityViewer.project.graph;
 
-public class NodeSubIntersection extends NodeContainer<Node, NodeIntersection>{
+public class NodeSubIntersection extends NodeContainer<Node, NodeIntersection> {
+
+    // Neighbour can be null;
     public NodeSubIntersection(Node node, NodeIntersection parent1, NodeIntersection parent2) {
         super(node);
 
-        add(parent1);
-        add(parent2);
+        super.add(parent1);
+        super.add(parent2);
     }
     public NodeIntersection getParent1(){
         return get(0);

@@ -1,8 +1,5 @@
 package MobilityViewer.project.graph;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class ReducedGraph extends ListNode<NodeIntersection> {
@@ -23,11 +20,11 @@ public class ReducedGraph extends ListNode<NodeIntersection> {
         subNodeGraph.clear();
 
         Queue<Node> nodeToCheck = new LinkedList<>();
-        Set<Node> subNodes = new HashSet<>();
+        List<Node> subNodes = new ArrayList<>();
 
-        Node currentNode, next, previous, temp;
+        Node currentNode, nextNode, previousNode, tempNode;
         NodeIntersection currentIntersection, nextIntersection;
-        NodeSubIntersection subIntersection;
+        NodeSubIntersection currentSubNode;
 
         for (Node node : graph.getNodes()) {
             if (node.size() != 2) {
@@ -38,53 +35,62 @@ public class ReducedGraph extends ListNode<NodeIntersection> {
 
         int total = 0;
 
-        while(!nodeToCheck.isEmpty()){
+        while (!nodeToCheck.isEmpty()) {
             currentNode = nodeToCheck.poll();
 
-            if (containsId(currentNode.getId())){
+            if (containsId(currentNode.getId()))
                 currentIntersection = getById(currentNode.getId());
-            } else {
+            else {
                 currentIntersection = new NodeIntersection(currentNode);
                 add(currentIntersection);
             }
 
-            for (Node neighbour : currentNode.getNodes()){
+            for (Node neighbour : currentNode.getNodes()) {
                 subNodes.clear();
 
-                next = neighbour;
-                previous = currentNode;
+                nextNode = neighbour;
+                previousNode = currentNode;
 
-                while (next.size() == 2){
-                    subNodes.add(next);
-                    temp = next;
+                while (nextNode.size() == 2) {
+                    if (!subNodes.contains(nextNode))
+                        subNodes.add(nextNode);
 
-                    next = next.get( (next.get(0) == previous) ? 1: 0);
+                    tempNode = nextNode;
 
-                    previous = temp;
+                    if (nextNode.get(0) == previousNode)
+                        nextNode = nextNode.get(1);
+                    else
+                        nextNode = nextNode.get(0);
+
+                    previousNode = tempNode;
                 }
 
                 // Next is the second intersection
-                if (containsId(next.getId())){
-                    nextIntersection = getById(next.getId());
-                } else {
-                    nextIntersection = new NodeIntersection(next);
+                if (containsId(nextNode.getId()))
+                    nextIntersection = getById(nextNode.getId());
+                else {
+                    nextIntersection = new NodeIntersection(nextNode);
                     add(nextIntersection);
-                    nodeToCheck.add(next);
+                    nodeToCheck.add(nextNode);
                 }
 
                 NodeIntersectionList intersectionList = new NodeIntersectionList(currentIntersection, nextIntersection);
-                for (Node node : subNodes){
-                    if (subNodeGraph.containsId(node.getId())){
-                        subIntersection = subNodeGraph.getById(node.getId());
-                    } else {
-                        subIntersection = new NodeSubIntersection(node, currentIntersection, nextIntersection);
-                        subNodeGraph.add(subIntersection);
+
+                for (Node subNode : subNodes){
+                    if (subNodeGraph.containsId(subNode.getId()))
+                        currentSubNode = subNodeGraph.getById(subNode.getId());
+                    else {
+                        currentSubNode = new NodeSubIntersection(
+                                subNode,
+                                currentIntersection, nextIntersection);
+                        subNodeGraph.add(currentSubNode);
                     }
 
-                    intersectionList.add(subIntersection);
+                    intersectionList.add(currentSubNode);
 
                     ++total;
                 }
+
                 currentIntersection.add(intersectionList);
             }
         }
@@ -100,5 +106,78 @@ public class ReducedGraph extends ListNode<NodeIntersection> {
 
     public ReducedGraphSubNode getSubNodeGraph(){
         return subNodeGraph;
+    }
+
+    // Create a new graph using only intersection, will copy all nodes, should not use the original node
+    // no object id of nodes will be different
+    public Graph createCorresponding(){
+        SortedMap<Long, Node> createdNode = new TreeMap<>();
+
+        Graph graph = new Graph();
+        Node model, correspondingModel, modelNeighbour, correspondingNeighbour;
+
+        for (NodeIntersection intersection : getNodes()){
+            model = intersection.getReferenceNode();
+
+            if (createdNode.containsKey(model.getId())) {
+                correspondingModel = createdNode.get(model.getId());
+            } else {
+                correspondingModel = model.copy();
+
+                createdNode.put(model.getId(), correspondingModel);
+            }
+
+            for (NodeIntersectionList neighbour : intersection.getNodes()){
+                modelNeighbour = neighbour.getReferenceNodeTo().getReferenceNode();
+
+                if (createdNode.containsKey(modelNeighbour.getId())) {
+                    correspondingNeighbour = createdNode.get(modelNeighbour.getId());
+                } else {
+                    correspondingNeighbour = modelNeighbour.copy();
+
+                    createdNode.put(modelNeighbour.getId(), correspondingNeighbour);
+                }
+
+                correspondingModel.add(correspondingNeighbour);
+            }
+        }
+
+        graph.addAll(createdNode.values());
+
+        return graph;
+    }
+
+    public Graph createCorrespondingSubGraph(){
+        SortedMap<Long, Node> createdNodes = new TreeMap<>();
+
+        Graph graph = new Graph();
+        Node previousNode, currentNode;
+        for (NodeIntersection intersection : getNodes()){
+            for (NodeIntersectionList neighbour : intersection.getNodes()){
+                previousNode = null;
+                if (intersection.getId() < neighbour.getId())
+                    continue;
+
+                for (Long id : neighbour.getIds()){
+                    if (createdNodes.containsKey(id)){
+                        currentNode = createdNodes.get(id);
+                    } else {
+                        currentNode = neighbour.getById(id).getReferenceNode().copy();
+                        createdNodes.put(currentNode.getId(), currentNode);
+                    }
+
+                    if (previousNode != null){
+                        previousNode.add(currentNode);
+                        currentNode.add(previousNode);
+                    }
+
+                    previousNode = currentNode;
+                }
+            }
+        }
+
+        graph.addAll(createdNodes.values());
+
+        return graph;
     }
 }

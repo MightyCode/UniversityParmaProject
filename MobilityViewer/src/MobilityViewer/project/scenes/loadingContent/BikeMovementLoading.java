@@ -10,6 +10,7 @@ import org.joml.Vector4f;
 import org.json.JSONObject;
 
 ;
+import java.util.ArrayList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -20,6 +21,11 @@ public class BikeMovementLoading extends LoadingContent{
         public SortedMap<Long, Node> nodes;
         public SortedMap<Long, Road> roads;
         public SortedMap<Long, Node>[] paths;
+
+        public ArrayList<Node> firstNodes;
+        public ArrayList<Node> lastNodes;
+
+        public Graph graph;
     }
 
     public BikeMovementLoading() {
@@ -45,6 +51,8 @@ public class BikeMovementLoading extends LoadingContent{
 
         bmResult.nodes = new TreeMap<>();
         bmResult.roads = new TreeMap<>();
+        bmResult.firstNodes = new ArrayList<>();
+        bmResult.lastNodes = new ArrayList<>();
 
         JSONObject jsonObject = new JSONObject(data);
 
@@ -58,9 +66,9 @@ public class BikeMovementLoading extends LoadingContent{
         step = "Create graph and parse roads";
         percentage = 0.4f;
 
-        Graph graph = new Graph();
+        bmResult.graph = new Graph();
         for (Node node : bmResult.nodes.values()) {
-            graph.add(node);
+            bmResult.graph.add(node);
 
             if (interrupted())
                 return;
@@ -99,6 +107,9 @@ public class BikeMovementLoading extends LoadingContent{
                     String[] axis = positions[j].trim().split(" ");
 
                     Node current = new Node(j, Float.parseFloat(axis[0]), Float.parseFloat(axis[1]));
+                    if (j == 0)
+                        bmResult.firstNodes.add(current);
+
                     bmResult.paths[number].put(current.getId(), current);
 
                     if (previous != null){
@@ -108,6 +119,8 @@ public class BikeMovementLoading extends LoadingContent{
 
                     previous = current;
                 }
+
+                bmResult.lastNodes.add(previous);
 
                 ++number;
             }

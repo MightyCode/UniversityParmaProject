@@ -21,6 +21,8 @@ public class RoadRenderer {
 
     private int roadNumber;
 
+    private float roadSize;
+
     public RoadRenderer(Camera2D referenceCamera){
         renderer = new Renderer("colorShape2D", true);
         renderer.switchToColorMode(ColorList.Blue());
@@ -31,6 +33,7 @@ public class RoadRenderer {
         vboPositionIndex = renderer.getShape().addVboFloat(new float[0], 2, Shape.DYNAMIC_STORE);
 
         roadNumber = 0;
+        roadSize = 2;
     }
 
     public void setColor(Color4f color){
@@ -54,23 +57,26 @@ public class RoadRenderer {
                 ebo[EBO_SHIFT * i + j] = eboValues[j] + 4 * i;
         }
 
-        renderer.getShape().setEbo(ebo);
         System.out.println("Number of road : " + roadNumber);
+
+        renderer.getShape().setEbo(ebo);
         vbo = new float[VBO_SHIFT * roadNumber];
     }
 
+    public void setRoadSize(float size){
+        this.roadSize = size;
+    }
+
     public void updateNodes(SortedMap<Long, Node> nodes, Vector4f boundaries, Vector4f displayBoundaries, float zoomLevel){
-        float roadSize = 2 / zoomLevel;
+        float roadSize = this.roadSize / zoomLevel;
 
         int i = 0;
         Vector4f temp1 = new Vector4f(), temp2 = new Vector4f();
 
-        Vector2f position1, position2,
-                result = new Vector2f();
-
+        Vector2f position1, position2, result = new Vector2f();
         for (Map.Entry<Long, Node> entry: nodes.entrySet()){
             for (Node node : entry.getValue().getNodes()){
-                if (node.getId() > entry.getValue().getId())
+                if (node.getId() >= entry.getValue().getId())
                     continue;
 
                 position1 = entry.getValue().getPositionInBoundaries(boundaries, displayBoundaries);

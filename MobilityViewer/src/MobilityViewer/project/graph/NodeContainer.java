@@ -31,4 +31,8 @@ public class NodeContainer <K extends PositionListNode<?>, T extends ListNode<?>
     public Vector2f getPositionInBoundaries(Vector4f boundaries, Vector4f rendererDest) {
         return node.getPositionInBoundaries(boundaries, rendererDest);
     }
+
+    public NodeContainer<K, T> copy(){
+        return new NodeContainer<>(node);
+    }
 }

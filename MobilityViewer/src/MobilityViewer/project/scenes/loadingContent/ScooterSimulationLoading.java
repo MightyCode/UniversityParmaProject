@@ -94,6 +94,9 @@ public class ScooterSimulationLoading extends LoadingContent {
 
             int indexInFile = 0;
             for (int i = 0; i < csvFile.size(); ++i) {
+                if (interrupted())
+                    return;
+
                 Vector2f startPosition = new Vector2f(
                         Float.parseFloat(csvFile.getData(i, 2)),
                         Float.parseFloat(csvFile.getData(i, 1))
@@ -120,7 +123,6 @@ public class ScooterSimulationLoading extends LoadingContent {
                             path.add(sslResult.nodes.get(Long.parseLong(idNode.trim())));
                         }
 
-                        System.out.println(path.size());
                         current.init(path);
                         sslResult.scooters.add(current);
                     }

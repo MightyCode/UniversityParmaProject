@@ -12,4 +12,6 @@ public abstract class PositionListNode<T extends ListNode<?>> extends ListNode<T
     public abstract Vector2f getPosition();
 
     public abstract Vector2f getPositionInBoundaries(Vector4f boundaries, Vector4f rendererDest);
+
+    public abstract PositionListNode<T> copy();
 }

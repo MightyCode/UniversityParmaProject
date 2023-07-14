@@ -63,7 +63,6 @@ public class Scooter {
         nodeTime = new long[path.size() - 1];
 
         for (int i = 0; i < path.size() - 1; ++i){
-            System.out.println(path.get(i) + " " + i);
             distances[i] = path.get(i).getDist(path.get(i + 1));
             total += distances[i];
         }

@@ -28,6 +28,11 @@ public class Node extends PositionListNode<Node> {
     }
 
     @Override
+    public Node copy() {
+        return new Node(getId(), position.x, position.y);
+    }
+
+    @Override
     public Vector2f getPosition() {
         return new Vector2f(position);
     }

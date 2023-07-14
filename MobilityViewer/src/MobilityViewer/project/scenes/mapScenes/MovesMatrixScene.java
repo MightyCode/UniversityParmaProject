@@ -26,6 +26,8 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
     private HashMap<ETypeData, MatrixRenderer> endMatricesRenderer;
     private HashMap<ETypeData, MatrixRenderer> combineMatricesRenderer;
 
+    private HashMap<ETypeData, MatrixRenderer> absoluteMatricesRenderer;
+
     private int matrixToShow;
     private boolean shouldShowMap;
     private Text currentMatrixDisplayed;
@@ -72,6 +74,7 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
 
         startMatricesRenderer = new HashMap<>();
         endMatricesRenderer = new HashMap<>();
+        absoluteMatricesRenderer = new HashMap<>();
         combineMatricesRenderer = new HashMap<>();
         for (ETypeData key : ETypeData.values()){
             startMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
@@ -88,8 +91,17 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
                     .updateNodes(loadingResult.endMatrices.get(key),
                             loadingResult.minEndValues.get(key), loadingResult.maxEndValues.get(key), displayBoundaries);
 
+            absoluteMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
+                    loadingResult.absoluteMatrices.get(key).length * loadingResult.absoluteMatrices.get(key)[0].length));
+
+            absoluteMatricesRenderer.get(key)
+                    .updateNodes(loadingResult.absoluteMatrices.get(key),
+                            loadingResult.minAbsoluteValues.get(key), loadingResult.maxAbsoluteValues.get(key), displayBoundaries);
+
             combineMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
                     loadingResult.combineMatrices.get(key).length * loadingResult.combineMatrices.get(key)[0].length));
+
+            combineMatricesRenderer.get(key).setColorMode(MatrixRenderer.EMatrixRendererMode.ColorInterval);
 
             combineMatricesRenderer.get(key)
                     .updateNodes(loadingResult.combineMatrices.get(key),
@@ -145,7 +157,7 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
         move(mapCamera, inputManager);
 
         if (inputManager.inputPressed(ActionId.SWITCH)) {
-            if (++matrixToShow >= 3){
+            if (++matrixToShow >= 4){
                 matrixToShow = 0;
             }
 
@@ -155,6 +167,8 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
                 case 1:
                     currentMatrixDisplayed.setText("End Matrix"); break;
                 case 2:
+                    currentMatrixDisplayed.setText("Absolute Matrix"); break;
+                case 3:
                     currentMatrixDisplayed.setText("Combine Matrix"); break;
             }
         }
@@ -173,6 +187,8 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
             case 1:
                 endMatricesRenderer.get(typeSelector.getSelected()).display(); break;
             case 2:
+                absoluteMatricesRenderer.get(typeSelector.getSelected()).display(); break;
+            case 3:
                 combineMatricesRenderer.get(typeSelector.getSelected()).display(); break;
         }
 
@@ -194,6 +210,7 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
         for (ETypeData key : ETypeData.values()){
             startMatricesRenderer.get(key).unload();
             endMatricesRenderer.get(key).unload();
+            absoluteMatricesRenderer.get(key).unload();
             combineMatricesRenderer.get(key).unload();
         }
 

@@ -3,84 +3,146 @@ package MobilityViewer.project.graph;
 import java.util.*;
 
 public class Dijkstra {
-    public static List<Node> findShortestPathReduced(ReducedGraph graph, Node startNode, Node endNode){
+    public static List<Node> findShortestPathReduced(Graph graph, ReducedGraph reducedGraph, Node startNode, Node endNode){
         if (startNode == endNode)
             return new ArrayList<>();
 
-        NodeIntersection startIntersection = null, endIntersection = null;
+        Node startIntersection = null, endIntersection = null;
 
-        for(NodeIntersection intersection : graph.getNodes()){
-            if (intersection.getId() == startNode.getId())
-                startIntersection = intersection;
+        Graph correspondingGraph = reducedGraph.createCorresponding();
 
-            if (intersection.getId() == endNode.getId())
-                endIntersection = intersection;
+        ReducedGraph.ReducedGraphSubNode reducedGraphSubNode = reducedGraph.getSubNodeGraph();
 
-            for (NodeIntersectionList list : intersection.getNodes()){
-                if (list.containsId(startNode.getId())) {
-                    if (list.getReferenceNodeFrom() == endIntersection)
-                        startIntersection = list.getReferenceNodeTo();
-                    else
-                        startIntersection = list.getReferenceNodeFrom();
-                }
-
-                if (list.containsId(endNode.getId())){
-                    if (list.getReferenceNodeFrom() == startIntersection)
-                        endIntersection = list.getReferenceNodeTo();
-                    else
-                        endIntersection = list.getReferenceNodeFrom();
-                }
-            }
-
-            if (startIntersection != null && endIntersection != null)
-                break;
+        // If start Node is intersection
+        if (correspondingGraph.containsId(startNode.getId()))
+            startIntersection = correspondingGraph.getById(startNode.getId());
+        // If not we add the node as an intersection
+        else if (reducedGraph.getSubNodeGraph().containsId(startNode.getId())){
+            startIntersection = findAndAdd(startNode, reducedGraph, correspondingGraph);
         }
 
-        Map<NodeIntersection, Float> distances = new HashMap<>();
-        Map<NodeIntersection, NodeIntersection> previousNodes = new HashMap<>();
-        PriorityQueue<NodeIntersection> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
-        Set<NodeIntersection> visited = new HashSet<>();
-
-        for (NodeIntersection node : graph.getNodes()) {
-            distances.put(node, Float.MAX_VALUE);
-            previousNodes.put(node, null);
+        // If end node is intersection
+        if (correspondingGraph.containsId(endNode.getId()))
+            endIntersection = correspondingGraph.getById(endNode.getId());
+        // If not we add the node as an intersection
+        else if (reducedGraph.getSubNodeGraph().containsId(endNode.getId())){
+            endIntersection = findAndAdd(endNode, reducedGraph, correspondingGraph);
         }
 
-        distances.put(startIntersection, 0f);
-        priorityQueue.offer(startIntersection);
+        // Debug case
+        if (startIntersection == null || endIntersection == null){
+            return new ArrayList<>();
+        }
 
-        while (!priorityQueue.isEmpty()) {
-            NodeIntersection currentNode = priorityQueue.poll();
+        List<Node> intersectionPath = findShortestPath(correspondingGraph, startIntersection, endIntersection);
 
-            if (currentNode.equals(endIntersection)) {
-                List<NodeIntersection> inters =  reconstructPathIntersection(previousNodes, endIntersection);
+        System.out.println(intersectionPath.size());
 
-                List<Node> result = new ArrayList<>();
-                for(NodeIntersection intersection : inters)
-                    result.add(intersection.getReferenceNode());
+        List<Node> result = new ArrayList<>();
 
-                return result;
+        int start = 0;
+        int end = intersectionPath.size() - 1;
+        if (reducedGraph.containsId(startIntersection.getId())) {
+            result.add(reducedGraph.getById(intersectionPath.get(0).getId()).getReferenceNode());
+        } else {
+            start = 1;
+            NodeSubIntersection startSubNode = reducedGraphSubNode.getById(startNode.getId());
+            NodeIntersection otherInter;
+            NodeIntersectionList goal;
+
+            if (startSubNode.getParent1().getId() == intersectionPath.get(1).getId()) {
+                otherInter = startSubNode.getParent2();
+                goal = otherInter.getById(startSubNode.getParent1().getId());
+            } else {
+                otherInter = startSubNode.getParent1();
+                goal = otherInter.getById(startSubNode.getParent2().getId());
             }
 
-            visited.add(currentNode);
+            Long[] idsArray = goal.getIds().toArray(new Long[0]);
 
-            for (NodeIntersectionList neighbor : currentNode.getNodes()) {
-                NodeIntersection to = neighbor.getReferenceNodeTo();
+            boolean shouldBegin = false;
+            for (Long aLong : idsArray) {
+                if (aLong == startNode.getId())
+                    shouldBegin = true;
 
-                if (visited.contains(to))
-                    continue;
+                if (shouldBegin)
+                    result.add(goal.getById(aLong).getReferenceNode());
+            }
 
-                float newDistance = distances.get(currentNode) + currentNode.getDist(to);
+            result.add(goal.getReferenceNodeTo().getReferenceNode());
+        }
 
-                if (newDistance < distances.get(to)) {
-                    distances.put(to, newDistance);
-                    previousNodes.put(to, currentNode);
-                    priorityQueue.offer(to);
-                }
+        if (!reducedGraph.containsId(endIntersection.getId()))
+            end = intersectionPath.size() - 2;
+
+        Node current = intersectionPath.get(start), next;
+        NodeIntersection currentIntersection;
+        NodeIntersectionList nextIntersection;
+        // ]0, size - 1[
+        // don't include current, include next
+        for (int i = start; i < end; ++i){
+            next = intersectionPath.get(i + 1);
+
+            currentIntersection = reducedGraph.getById(current.getId());
+
+            nextIntersection = currentIntersection.getById(next.getId());
+
+            for (Long id : nextIntersection.getIds()){
+                result.add(reducedGraphSubNode.getById(id).getReferenceNode());
+            }
+
+            result.add(nextIntersection.getReferenceNodeTo().getReferenceNode());
+
+            current = next;
+        }
+
+        if (!reducedGraph.containsId(endIntersection.getId())){
+            NodeSubIntersection endSubNode = reducedGraphSubNode.getById(endNode.getId());
+            NodeIntersection otherInter;
+            NodeIntersectionList goal;
+
+            if (endSubNode.getParent1().getId() == intersectionPath.get(intersectionPath.size() - 2).getId()) {
+                otherInter = endSubNode.getParent1();
+                goal = otherInter.getById(endSubNode.getParent2().getId());
+            } else {
+                otherInter = endSubNode.getParent2();
+                goal = otherInter.getById(endSubNode.getParent1().getId());
+            }
+
+            Long[] idsArray = goal.getIds().toArray(new Long[0]);
+
+            boolean shouldContinue = true;
+            for (int i = 0; shouldContinue && i < idsArray.length; ++i) {
+                if (idsArray[i] == endNode.getId())
+                    shouldContinue = false;
+
+                result.add(goal.getById(idsArray[i]).getReferenceNode());
             }
         }
 
-        return new ArrayList<>();
+        return result;
+    }
+
+
+
+    public static Node findAndAdd(Node reference, ReducedGraph reducedGraph, Graph correspondingGraph){
+        NodeSubIntersection endSubNode = reducedGraph.getSubNodeGraph().getById(reference.getId());
+
+        Node result = new Node(reference.getId(), reference.position.x, reference.position.y);
+
+        Node temp = correspondingGraph.getById(endSubNode.getParent1().getId());
+
+        result.add(temp);
+        temp.add(result);
+
+        temp = correspondingGraph.getById(endSubNode.getParent2().getId());
+
+        result.add(temp);
+        temp.add(result);
+
+        correspondingGraph.add(result);
+
+        return result;
     }
 
     public static List<Node> findShortestPath(Graph graph, Node startNode, Node endNode) {
@@ -125,19 +187,6 @@ public class Dijkstra {
     private static List<Node> reconstructPath(Map<Node, Node> previousNodes, Node endNode) {
         List<Node> path = new ArrayList<>();
         Node currentNode = endNode;
-
-        while (currentNode != null) {
-            path.add(0, currentNode);
-            currentNode = previousNodes.get(currentNode);
-        }
-
-        return path;
-    }
-
-    private static List<NodeIntersection> reconstructPathIntersection(
-            Map<NodeIntersection, NodeIntersection> previousNodes, NodeIntersection endNode) {
-        List<NodeIntersection> path = new ArrayList<>();
-        NodeIntersection currentNode = endNode;
 
         while (currentNode != null) {
             path.add(0, currentNode);

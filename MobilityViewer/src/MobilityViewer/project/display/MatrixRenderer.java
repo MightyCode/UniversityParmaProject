@@ -9,6 +9,12 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 public class MatrixRenderer {
+
+    public enum EMatrixRendererMode {
+        HeatMap,
+        ColorInterval
+    }
+
     private static final int EBO_SHIFT = 6;
     private static final int VBO_POSITION_SHIFT = 4 * 2;
     private static final int VBO_COLOR_SHIFT = 4 * 4;
@@ -17,6 +23,8 @@ public class MatrixRenderer {
     private final int numberCell;
     private final int vboPositionIndex;
     private final int vboColorIndex;
+
+    private EMatrixRendererMode colorMode;
     private Color4f lowValue;
     private Color4f highValue;
 
@@ -32,10 +40,15 @@ public class MatrixRenderer {
         vboPositionIndex = renderer.getShape().addVboFloat(new float[0], 2, Shape.STATIC_STORE);
         vboColorIndex = renderer.getShape().addVboFloat(new float[0], 4, Shape.STATIC_STORE);
 
-        lowValue = new Color4f(36 / 255f, 252 / 255f, 3 / 255f, 1);
-        highValue = new Color4f(26 / 255f, 77 / 255f, 18 / 255f, 1);
+        lowValue = new Color4f(222 / 255f, 235 / 255f, 183 / 255f, 1);
+        highValue = new Color4f(59 / 255f, 77 / 255f, 6 / 255f, 1);
+
+        colorMode = EMatrixRendererMode.HeatMap;
     }
 
+    public void setColorMode(EMatrixRendererMode colorMode){
+        this.colorMode = colorMode;
+    }
 
     public void setLowValue(Color4f newValue){
         lowValue = newValue;
@@ -45,8 +58,13 @@ public class MatrixRenderer {
         highValue = newValue;
     }
 
-    public Color4f heatmap(float value){
-        return new Color4f(Math.min(2 * value, 1.0f), Math.min(2 * value - 1, 1.0f), 0, 1f);
+    public Color4f valueToColor(float value){
+        switch (colorMode){
+            case HeatMap: default:
+                return new Color4f(Math.min(2 * value, 1.0f), Math.min(2 * value - 1, 1.0f), 0, 1f);
+            case ColorInterval:
+                return lowValue.blend(highValue, value);
+        }
     }
 
     public void updateNodes(int[][] matrix, float minValue, float maxValue, Vector4f displayBoundaries){
@@ -62,7 +80,7 @@ public class MatrixRenderer {
         for (int y = 0; y < matrix.length; ++y){
             for (int x = 0; x < matrix[y].length; ++x){
 
-                Color4f color = heatmap((matrix[y][x] - minValue) / (maxValue - minValue));
+                Color4f color = valueToColor((matrix[y][x] - minValue) / (maxValue - minValue));
 
                 Vector2f leftUpPosition = new Vector2f(
                         displayBoundaries.x + (displayBoundaries.z - displayBoundaries.x) * (x * 1.0f / matrix[y].length),

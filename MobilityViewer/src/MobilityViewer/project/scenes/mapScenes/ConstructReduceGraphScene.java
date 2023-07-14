@@ -17,6 +17,11 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
 
     private boolean showSubNodeRendererBelow;
 
+    private RoadRenderer reducedNodeRenderer;
+
+    private RoadRenderer reducedSubNodeRenderer;
+    private int thingsToShow;
+
     public ConstructReduceGraphScene(){
         super(new ReducedGraphLoading(),
                 "Object size up / down : u / j\n" +
@@ -27,6 +32,7 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
     public void initialize(String[] args) {
         super.initialize(args);
         showSubNodeRendererBelow = true;
+        thingsToShow = 0;
     }
 
     @Override
@@ -50,15 +56,31 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
         subNodeRenderer.init(loadingResult.reducedGraph.getSubNodeGraph().getNodes());
         subNodeRenderer.updateNodes(loadingResult.reducedGraph.getSubNodeGraph().getNodes(),
                 boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
+
+        reducedNodeRenderer = new RoadRenderer(mapCamera);
+        reducedNodeRenderer.init(loadingResult.reducedNodes);
+        reducedNodeRenderer.updateNodes(loadingResult.reducedNodes, boundaries,
+                displayBoundaries, main2DCamera.getZoomLevel().x);
+
+        reducedSubNodeRenderer = new RoadRenderer(mapCamera);
+        reducedSubNodeRenderer.init(loadingResult.reducedSubNodes);
+        reducedSubNodeRenderer.updateNodes(loadingResult.reducedSubNodes, boundaries,
+                displayBoundaries, main2DCamera.getZoomLevel().x);
     }
 
     public void zoom(Vector2f factor){
         mapCamera.setZoomLevel(new Vector2f(mapCamera.getZoomLevel()).mul(factor));
         nodeRenderer.updateNodes(loadingResult.reducedGraph.getNodes(),
                 boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+
         subNodeRenderer.updateNodes(loadingResult.reducedGraph.getSubNodeGraph().getNodes(),
                 boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+
         roadRenderer.updateNodes(loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+
+        reducedNodeRenderer.updateNodes(loadingResult.reducedNodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+
+        reducedSubNodeRenderer.updateNodes(loadingResult.reducedSubNodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
     }
 
     @Override
@@ -86,9 +108,8 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
             mapCamera.moveYinZoom( -mouseManager.posY() + mouseManager.oldPosY());
         }
 
-        if (inputManager.inputPressed(ActionId.RIGHT_CLICK)){
+        if (inputManager.inputPressed(ActionId.RIGHT_CLICK))
             isDragging = true;
-        }
 
         if (inputManager.inputPressed(ActionId.SHIFT)) {
             mapCamera.setZoomReference(EDirection.None);
@@ -111,6 +132,11 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
 
         if (inputManager.inputPressed(ActionId.SWITCH))
             showSubNodeRendererBelow = !showSubNodeRendererBelow;
+
+        if (inputManager.inputPressed(ActionId.ENTER)) {
+            if (++thingsToShow > 2)
+                thingsToShow = 0;
+        }
     }
 
 
@@ -124,8 +150,14 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
             subNodeRenderer.display();
         }
 
-        roadRenderer.display();
-
+        switch (thingsToShow){
+            case 0:
+                roadRenderer.display(); break;
+            case 1:
+                reducedNodeRenderer.display(); break;
+            case 2:
+                reducedSubNodeRenderer.display(); break;
+        }
     }
 
     @Override
@@ -135,5 +167,6 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
         nodeRenderer.unload();
         roadRenderer.unload();
         subNodeRenderer.unload();
+        reducedSubNodeRenderer.unload();
     }
 }

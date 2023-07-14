@@ -34,6 +34,10 @@ public class MovesMatrixLoading extends LoadingContent {
         public HashMap<ETypeData, int[][]> combineMatrices;
         public HashMap<ETypeData, Integer> minCombineValues;
         public HashMap<ETypeData, Integer> maxCombineValues;
+
+        public HashMap<ETypeData, int[][]> absoluteMatrices;
+        public HashMap<ETypeData, Integer> minAbsoluteValues;
+        public HashMap<ETypeData, Integer> maxAbsoluteValues;
     }
 
     public MovesMatrixLoading() {
@@ -59,6 +63,10 @@ public class MovesMatrixLoading extends LoadingContent {
         mmlResult.minCombineValues = new HashMap<>();
         mmlResult.maxCombineValues = new HashMap<>();
 
+        mmlResult.absoluteMatrices = new HashMap<>();
+        mmlResult.minAbsoluteValues = new HashMap<>();
+        mmlResult.maxAbsoluteValues = new HashMap<>();
+
         for (ETypeData key : ETypeData.values()){
             mmlResult.startMatrices.put(key, new int[NUMBER_CELLS[1]][NUMBER_CELLS[0]]);
             mmlResult.minStartValues.put(key, 0);
@@ -71,6 +79,10 @@ public class MovesMatrixLoading extends LoadingContent {
             mmlResult.combineMatrices.put(key, new int[NUMBER_CELLS[1]][NUMBER_CELLS[0]]);
             mmlResult.minCombineValues.put(key, 0);
             mmlResult.maxCombineValues.put(key, 0);
+
+            mmlResult.absoluteMatrices.put(key, new int[NUMBER_CELLS[1]][NUMBER_CELLS[0]]);
+            mmlResult.minAbsoluteValues.put(key, 0);
+            mmlResult.maxAbsoluteValues.put(key, 0);
         }
 
         String data = SceneConstants.requestData();
@@ -209,10 +221,14 @@ public class MovesMatrixLoading extends LoadingContent {
                     (int) ((diff.y - (endPosition.y - boundaries.y)) / diff.y * MovesMatrixLoading.NUMBER_CELLS[1])
             );
 
+            // Start Matrix
+
             if (++mmlResult.startMatrices.get(type)
                     [startCellPosition.y][startCellPosition.x] > mmlResult.maxStartValues.get(type))
                 mmlResult.maxStartValues.put(type,
                         mmlResult.startMatrices.get(type)[startCellPosition.y][startCellPosition.x]);
+
+            // End Matrix
 
             if (++mmlResult.endMatrices.get(type)[endCellPosition.y][endCellPosition.x] > mmlResult.maxEndValues.get(type))
                 mmlResult.maxEndValues.put(type,
@@ -229,6 +245,16 @@ public class MovesMatrixLoading extends LoadingContent {
                     [endCellPosition.y][endCellPosition.x] > mmlResult.maxCombineValues.get(type))
                 mmlResult.maxCombineValues.put(type,
                         mmlResult.combineMatrices.get(type)[endCellPosition.y][endCellPosition.x]);
+
+            // Absolute matrix
+            if (++mmlResult.absoluteMatrices.get(type)
+                    [startCellPosition.y][startCellPosition.x] > mmlResult.maxAbsoluteValues.get(type))
+                mmlResult.maxAbsoluteValues.put(type,
+                        mmlResult.absoluteMatrices.get(type)[startCellPosition.y][startCellPosition.x]);
+
+            if (++mmlResult.absoluteMatrices.get(type)[endCellPosition.y][endCellPosition.x] > mmlResult.maxAbsoluteValues.get(type))
+                mmlResult.maxAbsoluteValues.put(type,
+                        mmlResult.absoluteMatrices.get(type)[endCellPosition.y][endCellPosition.x]);
         }
     }
 }

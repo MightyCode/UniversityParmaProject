@@ -15,6 +15,9 @@ public class ReducedGraphLoading extends LoadingContent{
         public SortedMap<Long, Node> nodes;
         public SortedMap<Long, Road> roads;
         public ReducedGraph reducedGraph;
+        public SortedMap<Long, Node> reducedNodes;
+
+        public SortedMap<Long, Node> reducedSubNodes;
     }
 
     public ReducedGraphLoading() {
@@ -67,6 +70,17 @@ public class ReducedGraphLoading extends LoadingContent{
             rglResult.nodes.put(node.getId(), node);
 
         rglResult.reducedGraph = ReducedGraph.constructFrom(graph);
+
+        graph = rglResult.reducedGraph.createCorresponding();
+
+        rglResult.reducedNodes = new TreeMap<>();
+        for (Node node : graph.getNodes())
+            rglResult.reducedNodes.put(node.getId(), node);
+
+        graph = rglResult.reducedGraph.createCorrespondingSubGraph();
+        rglResult.reducedSubNodes = new TreeMap<>();
+        for (Node node : graph.getNodes())
+            rglResult.reducedSubNodes.put(node.getId(), node);
 
         step = "Finished";
         percentage = 1f;

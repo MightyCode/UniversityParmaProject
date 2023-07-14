@@ -4,12 +4,18 @@ import MobilityViewer.mightylib.graphics.text.ETextAlignment;
 import MobilityViewer.mightylib.graphics.text.Text;
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
+import MobilityViewer.project.ProjectUtil;
 import MobilityViewer.project.display.NodeRenderer;
 import MobilityViewer.project.display.RoadRenderer;
+import MobilityViewer.project.graph.Dijkstra;
 import MobilityViewer.project.graph.Node;
 import MobilityViewer.project.main.ActionId;
 import MobilityViewer.project.scenes.loadingContent.BikeMovementLoading;
 import org.joml.Vector2f;
+
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMovementLoading.BMResult> {
     private NodeRenderer<Node> nodeRenderer;
@@ -20,8 +26,13 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
 
     private Text currentPathDisplayedText;
 
+    private boolean showDijkstraOnTop;
+    private RoadRenderer dijkstraRenderer;
+
     public ShowBikeMovementsScene() {
-        super(new BikeMovementLoading(), "Show / Hide stations : space\n");
+        super(new BikeMovementLoading(),
+                "Show / Not show dijkstra on top : space\n" +
+                        "Next path : enter\n");
     }
 
     @Override
@@ -53,6 +64,10 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
 
         pathRenderer = new RoadRenderer(mapCamera);
 
+        dijkstraRenderer = new RoadRenderer(mapCamera);
+        dijkstraRenderer.setColor(ColorList.Coral());
+        showDijkstraOnTop = false;
+
         currentPathDisplayedText = new Text();
         currentPathDisplayedText.setFont("bahnschrift")
                 .setAlignment(ETextAlignment.Center)
@@ -71,6 +86,43 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
         pathRenderer.init(loadingResult.paths[currentPathDisplayed]);
         pathRenderer.updateNodes(loadingResult.paths[currentPathDisplayed],
                 boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
+
+        Vector2f startPosition = loadingResult.firstNodes.get(currentPathDisplayed).getPosition();
+
+        Vector2f endPosition = loadingResult.lastNodes.get(currentPathDisplayed).getPosition();
+
+        Node position = new Node(-1, startPosition.x, startPosition.y);
+        Node startNode = ProjectUtil.findClosest(loadingResult.nodes, position);
+        position = new Node(-1, endPosition.x, endPosition.y);
+        Node[] arrayNodes = ProjectUtil.findNClosest(loadingResult.nodes, position, 2);
+        Node endNode;
+        if (arrayNodes[0].getId() == startNode.getId()) {
+            if (position.getDist(startNode) / 2f > position.getDist(arrayNodes[1]))
+                endNode = arrayNodes[0];
+            else
+                endNode = arrayNodes[1];
+        } else {
+            endNode = arrayNodes[0];
+        }
+        List<Node> path = null;
+        if (startNode != endNode) {
+            path = Dijkstra.findShortestPath(loadingResult.graph, startNode, endNode);
+        }
+        SortedMap<Long, Node> pathNodes = new TreeMap<>();
+        Node previous = path.get(0), next;
+        previous = new Node(previous.getId(), previous.getPosition().x, previous.getPosition().y);
+        pathNodes.put(previous.getId(), previous);
+        for (int i = 1; i < path.size(); ++i) {
+            next = path.get(i);
+            next = new Node(next.getId(), next.getPosition().x, next.getPosition().y);
+            pathNodes.put(next.getId(), next);
+            previous.add(next);
+            next.add(previous);
+            previous = next;
+        }
+
+        dijkstraRenderer.init(pathNodes);
+        dijkstraRenderer.updateNodes(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
     }
 
     @Override
@@ -115,6 +167,10 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
             updatePathRenderer();
         }
 
+        if (inputManager.inputPressed(ActionId.SWITCH))
+            showDijkstraOnTop = !showDijkstraOnTop;
+
+
         move(mapCamera, inputManager);
     }
 
@@ -122,7 +178,15 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
     public void displayAL() {
         nodeRenderer.display();
         roadRenderer.display();
-        pathRenderer.display();
+
+        if (showDijkstraOnTop){
+            pathRenderer.display();
+            dijkstraRenderer.display();
+        } else {
+            dijkstraRenderer.display();
+            pathRenderer.display();
+        }
+
 
         currentPathDisplayedText.display();
     }
@@ -135,6 +199,7 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
         roadRenderer.unload();
         pathRenderer.unload();
         currentPathDisplayedText.unload();
+        dijkstraRenderer.unload();
     }
 }
 

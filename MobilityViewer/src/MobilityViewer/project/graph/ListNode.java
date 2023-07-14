@@ -3,15 +3,23 @@ package MobilityViewer.project.graph;
 import java.util.*;
 
 public abstract class ListNode<T extends ListNode<?>>{
+    private static long ID = 0;
+    private final long objectId;
+
     private final long id;
     private final ArrayList<Long> ids;
     private final SortedMap<Long, T> nodes;
 
     public ListNode(long id){
         this.id = id;
+        objectId = ID++;
 
         nodes = new TreeMap<>();
         ids = new ArrayList<>();
+    }
+
+    public long getObjectId(){
+        return objectId;
     }
 
     public long getId(){
@@ -62,6 +70,16 @@ public abstract class ListNode<T extends ListNode<?>>{
     }
 
     public T getById(long id){ return nodes.get(id); }
+
+    public boolean removeById(long id) {
+        nodes.remove(id);
+        return ids.remove(id);
+    }
+
+    public boolean remove(T node) {
+        nodes.remove(node.getId());
+        return ids.remove(node.getId());
+    }
 
     public Collection<T> getNodes(){
         return nodes.values();

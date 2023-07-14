@@ -9,7 +9,6 @@ import MobilityViewer.project.graph.*;
 import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
 
-import java.sql.SQLOutput;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -48,7 +47,23 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
         Node to = loadingResult.nodes.get(key[ThreadLocalRandom.current().nextInt(0, loadingResult.nodes.size())]);
 
         List<Node> path = Dijkstra.findShortestPath(loadingResult.graph, from, to);
+        SortedMap<Long, Node> pathNodes = createPath(path);
 
+        pathRenderer.init(pathNodes);
+        pathRenderer.updateNodes(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
+
+        path = Dijkstra.findShortestPathReduced(loadingResult.graph, reducedGraph, from, to);
+
+        if (path.size() == 0)
+            return;
+
+        SortedMap<Long, Node> reducedPathNodes = createPath(path);
+
+        reducedPathRenderer.init(reducedPathNodes);
+        reducedPathRenderer.updateNodes(reducedPathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
+    }
+
+    public SortedMap<Long, Node> createPath(List<Node> path){
         SortedMap<Long, Node> pathNodes = new TreeMap<>();
         Node previous = path.get(0), next;
         previous = new Node(previous.getId(), previous.getPosition().x, previous.getPosition().y);
@@ -65,31 +80,8 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
             previous = next;
         }
 
-        pathRenderer.init(pathNodes);
-        pathRenderer.updateNodes(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
-        path = Dijkstra.findShortestPathReduced(reducedGraph, from, to);
-
-        if (path.size() == 0)
-            return;
-
-        previous = path.get(0);
-        previous = new Node(previous.getId(), previous.getPosition().x, previous.getPosition().y);
-        pathNodes.put(previous.getId(), previous);
-
-        for (int i = 1; i < path.size(); ++i){
-            next = path.get(i);
-            next = new Node(next.getId(), next.getPosition().x, next.getPosition().y);
-            pathNodes.put(next.getId(), next);
-
-            previous.add(next);
-            next.add(previous);
-
-            previous = next;
-        }
-
-        reducedPathRenderer.init(pathNodes);
-        reducedPathRenderer.updateNodes(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
+        return pathNodes;
     }
 
     public void zoom(Vector2f factor){
@@ -113,6 +105,7 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
 
         reducedPathRenderer = new RoadRenderer(mapCamera);
         reducedPathRenderer.setColor(ColorList.Red());
+        reducedPathRenderer.setRoadSize(0.4f);
 
         reducedGraph = ReducedGraph.constructFrom(loadingResult.graph);
 

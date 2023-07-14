@@ -3,13 +3,13 @@ package MobilityViewer.project.scenes.loadingContent;
 import MobilityViewer.mightylib.resources.Resources;
 import MobilityViewer.mightylib.resources.data.CSVFile;
 import MobilityViewer.mightylib.util.DataFolder;
+import MobilityViewer.project.ProjectUtil;
 import MobilityViewer.project.graph.*;
 import MobilityViewer.project.scenes.SceneConstants;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.json.JSONObject;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -66,7 +66,6 @@ public class ExportScooterPathLoading extends LoadingContent{
         Graph graph = new Graph();
         for (Node node : nodes.values()) {
             graph.add(node);
-
         }
 
         nodes.clear();
@@ -106,10 +105,10 @@ public class ExportScooterPathLoading extends LoadingContent{
                     && (SceneConstants.inBoundaries(boundaries, endPosition))) {
 
                 Node position = new Node(-1, startPosition.x, startPosition.y);
-                Node startNode = findClosest(nodes, position);
+                Node startNode = ProjectUtil.findClosest(nodes, position);
 
                 position = new Node(-1, endPosition.x, endPosition.y);
-                Node[] arrayNodes = findNClosest(nodes, position, 2);
+                Node[] arrayNodes = ProjectUtil.findNClosest(nodes, position, 2);
                 Node endNode;
                 if (arrayNodes[0].getId() == startNode.getId()){
                     if (position.getDist(startNode) / 2f > position.getDist(arrayNodes[1]))
@@ -152,46 +151,5 @@ public class ExportScooterPathLoading extends LoadingContent{
 
         step = "Finished";
         percentage = 1f;
-    }
-
-
-    private Node findClosest(SortedMap<Long, Node> nodes, Node position){
-        float min = Float.POSITIVE_INFINITY;
-        Node minNode = nodes.get(nodes.firstKey());
-
-        for (Node other : nodes.values()){
-            float dist = other.getDist(position);
-            if (min > dist) {
-                min = dist;
-                minNode = other;
-            }
-        }
-
-        return minNode;
-    }
-
-    private Node[] findNClosest(SortedMap<Long, Node> nodes, Node position, int N) {
-        float[] distances = new float[N];
-        Arrays.fill(distances, Float.POSITIVE_INFINITY);
-        Node[] result = new Node[N];
-        for (Node other : nodes.values()){
-            float dist = other.getDist(position);
-
-            for (int i = 0; i < N; ++i){
-                if (distances[i] > dist){
-                    for (int j = N - 1; j >= i + 1; --j){
-                        distances[j] = distances[j - 1];
-                        result[j] = result[j - 1];
-                    }
-
-                    distances[i] = dist;
-                    result[i] = other;
-
-                    break;
-                }
-            }
-        }
-
-        return result;
     }
 }
