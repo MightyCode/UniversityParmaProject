@@ -76,8 +76,9 @@ public class ExportScooterPathLoading extends LoadingContent{
         step = "Reduce graph";
 
         ReducedGraph reducedGraph = ReducedGraph.constructFrom(graph);
+        Graph correspondingReducedGraph = reducedGraph.createCorresponding();
 
-        System.out.println(graph.size() + " " + reducedGraph.size());
+        boolean WILL_USE_REDUCED_PATH = true;
 
         float scooterPathCreationPercentage = 0.01f;
 
@@ -121,7 +122,10 @@ public class ExportScooterPathLoading extends LoadingContent{
 
                 List<Node> path = null;
                 if (startNode != endNode){
-                    path = Dijkstra.findShortestPath(graph, startNode, endNode);
+                    if (WILL_USE_REDUCED_PATH)
+                        path = Dijkstra.findShortestPathReduced(reducedGraph, correspondingReducedGraph, startNode, endNode);
+                    else
+                        path = Dijkstra.findShortestPath(graph, startNode, endNode);
                 }
 
                 if (path != null) {

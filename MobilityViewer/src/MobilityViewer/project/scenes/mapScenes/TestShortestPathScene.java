@@ -25,6 +25,8 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
 
     private boolean showNormalPathInFront;
 
+    private Graph reducedCorrespondingGraph;
+
     public TestShortestPathScene() {
         super(new ShortestPathLoading());
     }
@@ -34,11 +36,11 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
         super.initialize(args);
         /// SCENE INFORMATION ///
 
-        showNormalPathInFront = true;
+        showNormalPathInFront = false;
     }
 
     private void createNewPath(){
-        System.out.println("Do Dijkstra algorithm");
+        //System.out.println("Do Dijkstra algorithm");
 
         Long[] key = new Long[loadingResult.nodes.size()];
         loadingResult.nodes.keySet().toArray(key);
@@ -52,7 +54,7 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
         pathRenderer.init(pathNodes);
         pathRenderer.updateNodes(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
-        path = Dijkstra.findShortestPathReduced(loadingResult.graph, reducedGraph, from, to);
+        path = Dijkstra.findShortestPathReduced(reducedGraph, reducedCorrespondingGraph, from, to);
 
         if (path.size() == 0)
             return;
@@ -105,9 +107,10 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
 
         reducedPathRenderer = new RoadRenderer(mapCamera);
         reducedPathRenderer.setColor(ColorList.Red());
-        reducedPathRenderer.setRoadSize(0.4f);
+        reducedPathRenderer.setRoadSize(0.6f);
 
         reducedGraph = ReducedGraph.constructFrom(loadingResult.graph);
+        reducedCorrespondingGraph = reducedGraph.createCorresponding();
 
         createNewPath();
     }
@@ -130,7 +133,7 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
                 zoom(new Vector2f(1 + mainContext.getMouseManager().getMouseScroll().y * 0.1f));
         }
 
-        if (inputManager.inputPressed(ActionId.ENTER))
+        if (inputManager.getState(ActionId.ENTER))
             createNewPath();
 
         if (inputManager.inputReleased(ActionId.RIGHT_CLICK))

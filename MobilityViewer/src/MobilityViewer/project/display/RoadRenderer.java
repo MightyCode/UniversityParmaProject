@@ -57,7 +57,7 @@ public class RoadRenderer {
                 ebo[EBO_SHIFT * i + j] = eboValues[j] + 4 * i;
         }
 
-        System.out.println("Number of road : " + roadNumber);
+        //System.out.println("Number of road : " + roadNumber);
 
         renderer.getShape().setEbo(ebo);
         vbo = new float[VBO_SHIFT * roadNumber];

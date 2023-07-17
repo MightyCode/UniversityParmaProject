@@ -138,7 +138,7 @@ public class ReducedGraph extends ListNode<NodeIntersection> {
                     createdNode.put(modelNeighbour.getId(), correspondingNeighbour);
                 }
 
-                correspondingModel.add(correspondingNeighbour);
+                correspondingModel.add(correspondingNeighbour, intersection.getDist(neighbour.getReferenceNodeTo()));
             }
         }
 

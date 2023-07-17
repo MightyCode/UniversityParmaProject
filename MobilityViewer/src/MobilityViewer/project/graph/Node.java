@@ -4,17 +4,24 @@ import MobilityViewer.mightylib.util.math.MightyMath;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
+import java.util.HashMap;
+
 public class Node extends PositionListNode<Node> {
 
     protected Vector2f position;
+    private final HashMap<Node, Float> overrideDistances;
 
     public Node(long id, float x, float y){
         super(id);
 
+        overrideDistances = new HashMap<>();
         position = new Vector2f(x, y);
     }
 
     public float getDist(Node n){
+        if (overrideDistances.containsKey(n))
+            return overrideDistances.get(n);
+
         return getPosition().distance(n.getPosition());
     }
 
@@ -25,6 +32,12 @@ public class Node extends PositionListNode<Node> {
 
                 MightyMath.mapf(position.y, boundaries.y, boundaries.w, rendererDest.w, rendererDest.y)
         );
+    }
+
+    public void add(Node neighbour, float distance){
+        super.add(neighbour);
+
+        overrideDistances.put(neighbour, distance);
     }
 
     @Override

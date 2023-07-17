@@ -3,15 +3,15 @@ package MobilityViewer.project.graph;
 import java.util.*;
 
 public class Dijkstra {
-    public static List<Node> findShortestPathReduced(Graph graph, ReducedGraph reducedGraph, Node startNode, Node endNode){
+    public static List<Node> findShortestPathReduced(ReducedGraph reducedGraph, Graph correspondingGraph, Node startNode, Node endNode){
         if (startNode == endNode)
             return new ArrayList<>();
 
         Node startIntersection = null, endIntersection = null;
 
-        Graph correspondingGraph = reducedGraph.createCorresponding();
-
         ReducedGraph.ReducedGraphSubNode reducedGraphSubNode = reducedGraph.getSubNodeGraph();
+
+        boolean startAddedManually = false, endAddedManually = false;
 
         // If start Node is intersection
         if (correspondingGraph.containsId(startNode.getId()))
@@ -19,6 +19,7 @@ public class Dijkstra {
         // If not we add the node as an intersection
         else if (reducedGraph.getSubNodeGraph().containsId(startNode.getId())){
             startIntersection = findAndAdd(startNode, reducedGraph, correspondingGraph);
+            startAddedManually = true;
         }
 
         // If end node is intersection
@@ -27,6 +28,7 @@ public class Dijkstra {
         // If not we add the node as an intersection
         else if (reducedGraph.getSubNodeGraph().containsId(endNode.getId())){
             endIntersection = findAndAdd(endNode, reducedGraph, correspondingGraph);
+            endAddedManually = true;
         }
 
         // Debug case
@@ -35,8 +37,6 @@ public class Dijkstra {
         }
 
         List<Node> intersectionPath = findShortestPath(correspondingGraph, startIntersection, endIntersection);
-
-        System.out.println(intersectionPath.size());
 
         List<Node> result = new ArrayList<>();
 
@@ -118,6 +118,22 @@ public class Dijkstra {
 
                 result.add(goal.getById(idsArray[i]).getReferenceNode());
             }
+        }
+
+        if (startAddedManually) {
+            for (Node neighbour : startIntersection.getNodes()){
+                neighbour.remove(startIntersection);
+            }
+
+            correspondingGraph.remove(startIntersection);
+        }
+
+        if (endAddedManually){
+            for (Node neighbour : endIntersection.getNodes()){
+                neighbour.remove(endIntersection);
+            }
+
+            correspondingGraph.remove(endIntersection);
         }
 
         return result;
