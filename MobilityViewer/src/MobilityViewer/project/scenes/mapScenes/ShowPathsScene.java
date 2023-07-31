@@ -20,19 +20,15 @@ import java.util.TreeMap;
 public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMovementLoading.BMResult> {
     private NodeRenderer<Node> nodeRenderer;
     private RoadRenderer roadRenderer;
-
     private RoadRenderer pathRenderer;
     private int currentPathDisplayed;
-
     private Text currentPathDisplayedText;
-
     private boolean showDijkstraOnTop;
     private RoadRenderer dijkstraRenderer;
 
     public ShowBikeMovementsScene() {
         super(new BikeMovementLoading(),
-                "Show / Not show dijkstra on top : space\n" +
-                        "Next path : enter\n");
+                "Show / Not show dijkstra on top : space\n Next path : enter\n");
     }
 
     @Override

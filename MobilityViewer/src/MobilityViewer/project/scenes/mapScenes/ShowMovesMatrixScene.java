@@ -5,39 +5,33 @@ import MobilityViewer.mightylib.graphics.text.Text;
 import MobilityViewer.mightylib.util.math.Color4f;
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
-import MobilityViewer.project.display.MatrixRenderer;
-import MobilityViewer.project.display.NodeRenderer;
-import MobilityViewer.project.display.RoadRenderer;
-import MobilityViewer.project.display.TypeSelector;
+import MobilityViewer.project.display.*;
 import MobilityViewer.project.graph.Node;
-import MobilityViewer.project.main.ETypeData;
 import MobilityViewer.project.scenes.loadingContent.MovesMatrixLoading;
 import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
 
 import java.util.HashMap;
 
-public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLoading.MMLResult>
-{
+public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLoading.MMLResult> {
     private NodeRenderer<Node> nodeRenderer;
     private RoadRenderer roadRenderer;
 
-    private HashMap<ETypeData, MatrixRenderer> startMatricesRenderer;
-    private HashMap<ETypeData, MatrixRenderer> endMatricesRenderer;
-    private HashMap<ETypeData, MatrixRenderer> combineMatricesRenderer;
+    private HashMap<String, MatrixRenderer> startMatricesRenderer;
+    private HashMap<String, MatrixRenderer> endMatricesRenderer;
+    private HashMap<String, MatrixRenderer> combineMatricesRenderer;
 
-    private HashMap<ETypeData, MatrixRenderer> absoluteMatricesRenderer;
+    private HashMap<String, MatrixRenderer> absoluteMatricesRenderer;
 
     private int matrixToShow;
     private boolean shouldShowMap;
     private Text currentMatrixDisplayed;
 
-    private TypeSelector<ETypeData> typeSelector;
+    private StrSelector typeSelector;
 
     public MovesMatrixScene() {
         super(new MovesMatrixLoading(),
-                "Switch from start / end matrix : space\n"
-                         +   "Show / Hide map : t\n");
+                "Switch from start / end matrix : space\n" +  "Show / Hide map : t\n");
     }
 
     @Override
@@ -56,7 +50,8 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
 
     @Override
     public void endLoading(){
-        typeSelector = new TypeSelector<>(ETypeData.values(), mainContext);
+        typeSelector = new StrSelector(resourceCategories, mainContext);
+        typeSelector.setIfExists(currentResourceCategory);
 
         nodeRenderer = new NodeRenderer<>(mapCamera);
         nodeRenderer.setColor(new Color4f(1, 0, 0, 0.1f));
@@ -65,7 +60,7 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
                 loadingResult.nodes.values(), boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         roadRenderer = new RoadRenderer(mapCamera);
-        roadRenderer.setColor(new Color4f(0, 0, 1, 0.3f));
+        roadRenderer.setColor(new Color4f(0, 0, 1, 0.6f));
         roadRenderer.init(loadingResult.nodes);
         roadRenderer.updateNodes(
                 loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
@@ -76,7 +71,8 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
         endMatricesRenderer = new HashMap<>();
         absoluteMatricesRenderer = new HashMap<>();
         combineMatricesRenderer = new HashMap<>();
-        for (ETypeData key : ETypeData.values()){
+
+        for (String key : resourceCategories){
             startMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
                     loadingResult.startMatrices.get(key).length * loadingResult.startMatrices.get(key)[0].length));
 
@@ -177,6 +173,8 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
             shouldShowMap = !shouldShowMap;
 
         typeSelector.update();
+        if (typeSelector.isUpdated())
+            currentResourceCategory = typeSelector.getSelected();
     }
 
     @Override
@@ -207,7 +205,7 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
 
         typeSelector.unload();
 
-        for (ETypeData key : ETypeData.values()){
+        for (String key : resourceCategories){
             startMatricesRenderer.get(key).unload();
             endMatricesRenderer.get(key).unload();
             absoluteMatricesRenderer.get(key).unload();

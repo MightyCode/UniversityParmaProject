@@ -6,9 +6,12 @@ import MobilityViewer.mightylib.graphics.text.Text;
 import MobilityViewer.mightylib.inputs.InputManager;
 import MobilityViewer.mightylib.inputs.MouseManager;
 import MobilityViewer.mightylib.main.GameTime;
+import MobilityViewer.mightylib.resources.Resources;
+import MobilityViewer.mightylib.resources.data.JSONFile;
 import MobilityViewer.mightylib.scene.Camera2D;
 import MobilityViewer.mightylib.util.math.Color4f;
 import MobilityViewer.mightylib.util.math.EDirection;
+import MobilityViewer.project.display.StrSelector;
 import MobilityViewer.project.scenes.loadingContent.LoadingContent;
 import MobilityViewer.project.main.ActionId;
 import MobilityViewer.project.scenes.LoadingScene;
@@ -41,6 +44,10 @@ public abstract class SceneMap<T extends LoadingContent, K extends LoadingConten
     private boolean helpVisible;
 
     private final String furtherInstruction;
+    protected JSONFile displayableResources;
+    protected String[] resourceCategories;
+
+    protected String currentResourceCategory;
 
     public SceneMap(T T) {
         this(T, "");
@@ -53,6 +60,12 @@ public abstract class SceneMap<T extends LoadingContent, K extends LoadingConten
 
     @Override
     public void initialize(String[] args){
+
+        if (args.length >= 1)
+            currentResourceCategory = args[0];
+        else
+            currentResourceCategory = "general";
+
         main3DCamera.setPos(new Vector3f(0, 0, 0));
         main2DCamera.setPos(new Vector2f(0, 0));
         main2DCamera.setZoomLevel(1);
@@ -67,6 +80,9 @@ public abstract class SceneMap<T extends LoadingContent, K extends LoadingConten
 
         displayBoundaries = new Vector4f(0, 0, windowSize.x, windowSize.y);
         boundaries = SceneConstants.BOUNDARIES;
+
+        displayableResources =  Resources.getInstance().getResource(JSONFile.class, "displayableResources");
+        resourceCategories = displayableResources.getObject().keySet().toArray(new String[]{});
 
         loadingDisplay = new Text();
         loadingDisplay.setFont("bahnschrift")
@@ -142,7 +158,7 @@ public abstract class SceneMap<T extends LoadingContent, K extends LoadingConten
 
     protected void checkQuit(){
         if (mainContext.getInputManager().inputPressed(ActionId.ESCAPE))
-            sceneManagerInterface.setNewScene(new MenuScene(), new String[]{""});
+            sceneManagerInterface.setNewScene(new MenuScene(), new String[]{currentResourceCategory});
     }
 
     protected void move(Camera2D mapCamera, InputManager inputManager){

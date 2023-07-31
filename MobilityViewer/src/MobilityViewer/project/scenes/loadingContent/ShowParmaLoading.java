@@ -29,7 +29,7 @@ public class ParmaShowPointLoading extends LoadingContent {
     protected final void init() {
         percentage = 0.f;
         step = "Request data of Parma";
-        String data = SceneConstants.requestData();
+        String data = SceneConstants.requestData(true);
 
         if (interrupted())
             return;

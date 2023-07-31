@@ -2,10 +2,10 @@ package MobilityViewer.project.scenes.loadingContent;
 
 import MobilityViewer.mightylib.resources.Resources;
 import MobilityViewer.mightylib.resources.data.CSVFile;
+import MobilityViewer.mightylib.resources.data.JSONFile;
 import MobilityViewer.project.graph.Graph;
 import MobilityViewer.project.graph.Node;
 import MobilityViewer.project.graph.Road;
-import MobilityViewer.project.main.ETypeData;
 import MobilityViewer.project.scenes.SceneConstants;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
@@ -23,21 +23,21 @@ public class MovesMatrixLoading extends LoadingContent {
         public SortedMap<Long, Node> nodes;
         public SortedMap<Long, Road> roads;
 
-        public HashMap<ETypeData, int[][]> startMatrices;
-        public HashMap<ETypeData, Integer> minStartValues;
-        public HashMap<ETypeData, Integer> maxStartValues;
+        public HashMap<String, int[][]> startMatrices;
+        public HashMap<String, Integer> minStartValues;
+        public HashMap<String, Integer> maxStartValues;
 
-        public HashMap<ETypeData, int[][]> endMatrices;
-        public HashMap<ETypeData, Integer> minEndValues;
-        public HashMap<ETypeData, Integer> maxEndValues;
+        public HashMap<String, int[][]> endMatrices;
+        public HashMap<String, Integer> minEndValues;
+        public HashMap<String, Integer> maxEndValues;
 
-        public HashMap<ETypeData, int[][]> combineMatrices;
-        public HashMap<ETypeData, Integer> minCombineValues;
-        public HashMap<ETypeData, Integer> maxCombineValues;
+        public HashMap<String, int[][]> combineMatrices;
+        public HashMap<String, Integer> minCombineValues;
+        public HashMap<String, Integer> maxCombineValues;
 
-        public HashMap<ETypeData, int[][]> absoluteMatrices;
-        public HashMap<ETypeData, Integer> minAbsoluteValues;
-        public HashMap<ETypeData, Integer> maxAbsoluteValues;
+        public HashMap<String, int[][]> absoluteMatrices;
+        public HashMap<String, Integer> minAbsoluteValues;
+        public HashMap<String, Integer> maxAbsoluteValues;
     }
 
     public MovesMatrixLoading() {
@@ -67,7 +67,13 @@ public class MovesMatrixLoading extends LoadingContent {
         mmlResult.minAbsoluteValues = new HashMap<>();
         mmlResult.maxAbsoluteValues = new HashMap<>();
 
-        for (ETypeData key : ETypeData.values()){
+        JSONFile displayableResources =  Resources.getInstance().getResource(JSONFile.class, "displayableResources");
+        String[] resourceCategories = displayableResources.getObject().keySet().toArray(new String[]{});
+
+        for (String key : resourceCategories){
+            if (key.equals("general"))
+                continue;
+
             mmlResult.startMatrices.put(key, new int[NUMBER_CELLS[1]][NUMBER_CELLS[0]]);
             mmlResult.minStartValues.put(key, 0);
             mmlResult.maxStartValues.put(key, 0);
@@ -120,94 +126,86 @@ public class MovesMatrixLoading extends LoadingContent {
         step = "Get csv of scooters moves";
         percentage = 0.2f;
 
-        CSVFile csvFile = Resources.getInstance().getResource(CSVFile.class, "Noleggi_Parma_2022");
-        ETypeData type = ETypeData.Scooter;
+        JSONObject fileObject = displayableResources.getObject();
+        Vector2f startPosition = new Vector2f(), endPosition = new Vector2f();
+        int numbResource = 0;
 
-        Vector2f startPosition, endPosition;
+        for (String key : resourceCategories){
+            if (key.equals("general"))
+                continue;
 
-        if (csvFile != null) {
-            step = "Scooter path parsing : 0 / " + csvFile.size();
-            percentage = 0.33f;
-            float scooterLoadingPercentage = 0.01f;
+            System.out.println("Bug");
 
-            for (int i = 0; i < csvFile.size(); ++i) {
-                 startPosition = new Vector2f(
-                        Float.parseFloat(csvFile.getData(i, 2)),
-                        Float.parseFloat(csvFile.getData(i, 1))
-                );
+            JSONObject resourceObject = fileObject.getJSONObject(key);
 
-                endPosition = new Vector2f(
-                        Float.parseFloat(csvFile.getData(i, 5)),
-                        Float.parseFloat(csvFile.getData(i, 4))
-                );
+            CSVFile csvFile = Resources.getInstance().getResource(CSVFile.class, resourceObject.getString("file"));
 
-                fillWithPositions(startPosition, endPosition, type, boundaries, boundariesSize);
+            if (csvFile != null) {
+                step = "Scooter path parsing : 0 / " + csvFile.size();
+                percentage = 0.2f + (0.8f / mmlResult.maxAbsoluteValues.size() * numbResource);
 
-                if (i > scooterLoadingPercentage * csvFile.size()){
-                    scooterLoadingPercentage += 0.01f;
+                float scooterLoadingPercentage = 0.01f;
 
-                    step = "Scooter path parsing : " + (int)(scooterLoadingPercentage * csvFile.size())
-                            + " / " + csvFile.size();
-                    percentage = 0.33f + 0.33f * scooterLoadingPercentage;
+                for (int i = 0; i < csvFile.size(); ++i) {
+                    fillPosition(startPosition, endPosition, resourceObject, csvFile, i);
+
+                    fillWithPositions(startPosition, endPosition, key, boundaries, boundariesSize);
+
+                    if (i > scooterLoadingPercentage * csvFile.size()){
+                        scooterLoadingPercentage += 0.01f;
+
+                        step = "Scooter path parsing : " + (int)(scooterLoadingPercentage * csvFile.size())
+                                + " / " + csvFile.size();
+                        percentage = 0.2f + (0.8f / mmlResult.maxAbsoluteValues.size() * numbResource)
+                                + (0.8f / mmlResult.maxAbsoluteValues.size()) * scooterLoadingPercentage;
+                    }
                 }
             }
+
+            ++numbResource;
         }
 
-        csvFile = Resources.getInstance().getResource(CSVFile.class, "bikes-path");
-        type = ETypeData.Bike;
+        step = "Finished";
+        percentage = 1;
+    }
 
-        String temp;
-        String[] positions;
-        String[] position;
+    public void fillPosition(Vector2f startPosition, Vector2f endPosition, JSONObject object, CSVFile csvFile, int index) {
+        String type = object.getString("type");
+        if (type.equalsIgnoreCase("start/end")){
+            JSONObject info = object.getJSONObject("info");
 
-        if (csvFile != null) {
-            step = "Bike path parsing : 0 / " + csvFile.size();
-            percentage = 0.36f;
-            float scooterLoadingPercentage = 0.01f;
+            startPosition.x = Float.parseFloat(csvFile.getData(index,
+                    info.getJSONObject("startLongitude").getInt("col")));
 
-            for (int i = 0; i < csvFile.size(); ++i) {
+            startPosition.y = Float.parseFloat(csvFile.getData(index,
+                    info.getJSONObject("startLatitude").getInt("col")));
 
-                temp = csvFile.getData(i, 0);
 
-                temp = temp.trim().toLowerCase().replace("linestring(", "")
-                        .replace(")", "");
+            endPosition.x = Float.parseFloat(csvFile.getData(index,
+                    info.getJSONObject("endLongitude").getInt("col")));
 
-                if (!temp.contains("point") && !temp.contains("multi")) {
-                    positions = temp.split(",");
+            endPosition.y = Float.parseFloat(csvFile.getData(index,
+                    info.getJSONObject("endLatitude").getInt("col")));
 
-                    position = positions[0].trim().split(" ");
+        } else if (type.equalsIgnoreCase("path")){
+            String temp = csvFile.getData(index, 0);
 
-                    startPosition = new Vector2f(
-                            Float.parseFloat(position[0]),
-                            Float.parseFloat(position[1])
-                    );
+            String[] positions = temp.split(",");
 
-                    position = positions[positions.length - 1].trim().split(" ");
+            String[] position = positions[0].trim().split(" ");
 
-                    endPosition = new Vector2f(
-                            Float.parseFloat(position[0]),
-                            Float.parseFloat(position[1])
-                    );
+            startPosition.x = Float.parseFloat(position[0]);
+            startPosition.y = Float.parseFloat(position[1]);
 
-                    fillWithPositions(startPosition, endPosition, type, boundaries, boundariesSize);
-                }
+            position = positions[positions.length - 1].trim().split(" ");
 
-                if (i > scooterLoadingPercentage * csvFile.size()) {
-                    scooterLoadingPercentage += 0.01f;
-
-                    step = "Bike path parsing : " + (int) (scooterLoadingPercentage * csvFile.size())
-                            + " / " + csvFile.size();
-                    percentage = 0.66f + 0.34f * scooterLoadingPercentage;
-                }
-            }
-
-            step = "Finished";
-            percentage = 1;
+            endPosition.x = Float.parseFloat(position[0]);
+            endPosition.y = Float.parseFloat(position[1]);
         }
     }
 
     public void fillWithPositions(Vector2f startPosition, Vector2f endPosition,
-                                  ETypeData type, Vector4f boundaries, Vector2f diff){
+                                  String type, Vector4f boundaries, Vector2f diff){
         if (SceneConstants.inBoundaries(boundaries, startPosition)
                 && (SceneConstants.inBoundaries(boundaries, endPosition))) {
 

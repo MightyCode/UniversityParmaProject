@@ -12,19 +12,20 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 public class ExportScootersPathScene extends LoadingScene<ExportScooterPathLoading, ExportScooterPathLoading.EXPLResult> {
-
     public ExportScootersPathScene(){
         super(new ExportScooterPathLoading());
     }
-
-    Vector2i windowSize;
+    private Vector2i windowSize;
     private Text done;
-
     private Text loadingDisplay;
+
+    private String currentTypeResource;
 
     @Override
     public void initialize(String[] args) {
         /// SCENE INFORMATION ///
+
+        currentTypeResource = args[0];
 
         main3DCamera.setPos(new Vector3f(0, 0, 0));
         main2DCamera.setPos(new Vector2f(0, 0));
@@ -58,7 +59,7 @@ public class ExportScootersPathScene extends LoadingScene<ExportScooterPathLoadi
     @Override
     public void updateAfterLoading(){
         if (mainContext.getInputManager().inputPressed(ActionId.ESCAPE))
-            sceneManagerInterface.setNewScene(new MenuScene(), new String[]{""});
+            sceneManagerInterface.setNewScene(new MenuScene(), new String[]{currentTypeResource});
     }
 
     @Override
@@ -70,7 +71,6 @@ public class ExportScootersPathScene extends LoadingScene<ExportScooterPathLoadi
                 .setPosition(new Vector2f(windowSize.x * 0.5f, windowSize.y * 0.5f))
                 .setFontSize(40)
                 .setText("Done");
-
     }
 
     @Override

@@ -11,7 +11,7 @@ import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.mightylib.util.math.MathTime;
 import MobilityViewer.project.TickTranslator;
-import MobilityViewer.project.scenes.loadingContent.ScooterSimulationLoading;
+import MobilityViewer.project.scenes.loadingContent.ShowVehicleLoading;
 import MobilityViewer.project.display.GUI.HorizontalSlider;
 import MobilityViewer.project.display.GUI.Slider;
 import MobilityViewer.project.display.NodeRenderer;
@@ -23,7 +23,7 @@ import MobilityViewer.project.scenes.SceneConstants;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
-public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, ScooterSimulationLoading.SSLResult> {
+public class ShowVehicleSimulation extends SceneMap<ShowVehicleLoading, ShowVehicleLoading.SSLResult> {
     private static final long BASE_TIME_SPEED = 1000000;
 
     public static TickTranslator TRANSLATOR;
@@ -47,8 +47,8 @@ public class ShowScootersSimulation extends SceneMap<ScooterSimulationLoading, S
 
     private String pattern;
 
-    public ShowScootersSimulation() {
-        super(new ScooterSimulationLoading(),
+    public ShowVehicleSimulation() {
+        super(new ShowVehicleLoading(),
                 "Object size up / down : u / j\n");
     }
 

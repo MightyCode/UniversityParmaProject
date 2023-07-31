@@ -5,8 +5,8 @@ import MobilityViewer.mightylib.graphics.text.Text;
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.project.display.MatrixRenderer;
-import MobilityViewer.project.display.TypeSelector;
-import MobilityViewer.project.main.ETypeData;
+import MobilityViewer.project.display.EnumSelector;
+import MobilityViewer.project.display.StrSelector;
 import MobilityViewer.project.scenes.loadingContent.FullMatrixLoading;
 import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
@@ -14,11 +14,11 @@ import org.joml.Vector2f;
 import java.util.HashMap;
 
 public class ConstructFullMatrixScene extends SceneMap<FullMatrixLoading, FullMatrixLoading.FMLResult> {
-    private HashMap<ETypeData, MatrixRenderer> matricesRenderer;
+    private HashMap<String, MatrixRenderer> matricesRenderer;
 
     private Text currentMatrixDisplayed;
 
-    private TypeSelector<ETypeData> typeSelector;
+    private StrSelector typeSelector;
 
     public ConstructFullMatrixScene() {
         super(new FullMatrixLoading());
@@ -37,7 +37,8 @@ public class ConstructFullMatrixScene extends SceneMap<FullMatrixLoading, FullMa
     @Override
     public void endLoading(){
         matricesRenderer = new HashMap<>();
-        for (ETypeData key : ETypeData.values()){
+
+        for (String key : resourceCategories){
             matricesRenderer.put(key, new MatrixRenderer(mapCamera,
                     loadingResult.matrices.get(key).length * loadingResult.matrices.get(key)[0].length));
 
@@ -45,7 +46,8 @@ public class ConstructFullMatrixScene extends SceneMap<FullMatrixLoading, FullMa
                     loadingResult.minValues.get(key), loadingResult.maxValues.get(key), displayBoundaries);
         }
 
-        typeSelector = new TypeSelector<>(ETypeData.values(), mainContext);
+        typeSelector = new StrSelector(resourceCategories, mainContext);
+        typeSelector.setIfExists(currentResourceCategory);
 
         currentMatrixDisplayed = new Text();
         currentMatrixDisplayed.setFont("bahnschrift")
@@ -94,11 +96,13 @@ public class ConstructFullMatrixScene extends SceneMap<FullMatrixLoading, FullMa
         move(mapCamera, inputManager);
 
         typeSelector.update();
+        if (typeSelector.isUpdated())
+            currentResourceCategory = typeSelector.getSelected();
     }
 
     @Override
     public void displayAL() {
-        matricesRenderer.get(typeSelector.getSelected()).display();
+        matricesRenderer.get(currentResourceCategory).display();
         currentMatrixDisplayed.display();
 
         typeSelector.display();
@@ -107,7 +111,7 @@ public class ConstructFullMatrixScene extends SceneMap<FullMatrixLoading, FullMa
     @Override
     public void unloadAfterLoading() {
         super.unloadAfterLoading();
-        for (ETypeData key : ETypeData.values()){
+        for (String key : resourceCategories){
             matricesRenderer.get(key).unload();
         }
 

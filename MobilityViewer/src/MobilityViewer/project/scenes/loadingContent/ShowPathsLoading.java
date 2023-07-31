@@ -94,36 +94,32 @@ public class BikeMovementLoading extends LoadingContent{
 
         for (int i = 0; i < bikesPath.size(); ++i){
             String bikePath = bikesPath.getData(i, 0);
-            if (bikePath.toLowerCase().startsWith("linestring")) {
-                bikePath = bikePath.toLowerCase().replace("linestring", "").replace("(", "")
-                        .replace(")", "");
+            String[] positions = bikePath.split(",");
 
-                String[] positions = bikePath.split(",");
+            bmResult.paths[number] = new TreeMap<>();
+            Node previous = null;
 
-                bmResult.paths[number] = new TreeMap<>();
-                Node previous = null;
+            for (int j = 0; j < positions.length; ++j){
+                String[] axis = positions[j].trim().split(" ");
 
-                for (int j = 0; j < positions.length; ++j){
-                    String[] axis = positions[j].trim().split(" ");
+                Node current = new Node(j, Float.parseFloat(axis[0]), Float.parseFloat(axis[1]));
+                if (j == 0)
+                    bmResult.firstNodes.add(current);
 
-                    Node current = new Node(j, Float.parseFloat(axis[0]), Float.parseFloat(axis[1]));
-                    if (j == 0)
-                        bmResult.firstNodes.add(current);
+                bmResult.paths[number].put(current.getId(), current);
 
-                    bmResult.paths[number].put(current.getId(), current);
-
-                    if (previous != null){
-                        previous.add(current);
-                        current.add(previous);
-                    }
-
-                    previous = current;
+                if (previous != null){
+                    previous.add(current);
+                    current.add(previous);
                 }
 
-                bmResult.lastNodes.add(previous);
-
-                ++number;
+                previous = current;
             }
+
+            bmResult.lastNodes.add(previous);
+
+            ++number;
+
         }
 
         step = "Finished";

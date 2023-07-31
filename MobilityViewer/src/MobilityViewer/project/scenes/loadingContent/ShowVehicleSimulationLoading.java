@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class ScooterSimulationLoading extends LoadingContent {
+public class ShowVehicleLoading extends LoadingContent {
 
-    protected ScooterSimulationLoading.SSLResult sslResult;
+    protected ShowVehicleLoading.SSLResult sslResult;
 
     public static class SSLResult extends Result {
         public SortedMap<Long, Node> nodes;
@@ -28,10 +28,10 @@ public class ScooterSimulationLoading extends LoadingContent {
         public ArrayList<Scooter> scooters;
     }
 
-    public ScooterSimulationLoading() {
-        super(new ScooterSimulationLoading.SSLResult());
+    public ShowVehicleLoading() {
+        super(new ShowVehicleLoading.SSLResult());
 
-        sslResult = (ScooterSimulationLoading.SSLResult) result;
+        sslResult = (ShowVehicleLoading.SSLResult) result;
     }
 
     @Override

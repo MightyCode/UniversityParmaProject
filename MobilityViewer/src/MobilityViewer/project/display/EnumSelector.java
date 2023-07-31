@@ -13,8 +13,8 @@ import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
-public class TypeSelector <T extends Enum<?>>{
-    private T[] values;
+public class TypeSelector <T extends Enum<?>> {
+    private final T[] values;
 
     private boolean updated;
     private int selected;

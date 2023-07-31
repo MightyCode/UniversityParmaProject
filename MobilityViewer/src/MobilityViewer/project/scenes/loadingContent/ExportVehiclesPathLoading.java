@@ -78,7 +78,7 @@ public class ExportScooterPathLoading extends LoadingContent{
         ReducedGraph reducedGraph = ReducedGraph.constructFrom(graph);
         Graph correspondingReducedGraph = reducedGraph.createCorresponding();
 
-        boolean WILL_USE_REDUCED_PATH = true;
+        boolean WILL_USE_REDUCED_PATH = false;
 
         float scooterPathCreationPercentage = 0.01f;
 
