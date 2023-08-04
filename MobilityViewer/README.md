@@ -1,5 +1,13 @@
 # MobilityViewer
 
+## How to launch the project
+
+I used IntelliJ IDEA, so it's recommended to use it. 
+In the "project to launch" screen of IntelliJ select the pom.xml file.
+Of dependencies downloads and other stuff will be done by the editor.
+
+## How the app is working
+
 A file is used to list all resources that will be used.
 
 The application consists of a menu leading to several display screens. The buttons displayed in the
