@@ -1,4 +1,8 @@
 package MobilityViewer.project.graph;
+
+/**
+ * Class that represent, in a context of a reduced graph, an intersection Node
+ */
 public class NodeIntersection extends NodeContainer<Node, NodeIntersectionList> {
     public NodeIntersection(Node node) {
         super(node);

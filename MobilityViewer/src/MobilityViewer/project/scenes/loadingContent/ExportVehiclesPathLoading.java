@@ -4,7 +4,7 @@ import MobilityViewer.mightylib.resources.Resources;
 import MobilityViewer.mightylib.resources.data.CSVFile;
 import MobilityViewer.mightylib.resources.data.JSONFile;
 import MobilityViewer.mightylib.util.DataFolder;
-import MobilityViewer.project.ProjectUtil;
+import MobilityViewer.project.utils.ProjectUtil;
 import MobilityViewer.project.graph.*;
 import MobilityViewer.project.scenes.SceneConstants;
 import org.joml.Vector2f;

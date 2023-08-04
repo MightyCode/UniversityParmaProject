@@ -1,4 +1,4 @@
-package MobilityViewer.project;
+package MobilityViewer.project.utils;
 
 public abstract class TickTranslator {
     public final long convert(long tick){

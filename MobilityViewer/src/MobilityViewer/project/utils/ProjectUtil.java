@@ -1,4 +1,4 @@
-package MobilityViewer.project;
+package MobilityViewer.project.utils;
 
 import MobilityViewer.project.graph.Node;
 

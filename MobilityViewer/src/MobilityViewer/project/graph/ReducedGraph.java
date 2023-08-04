@@ -2,13 +2,20 @@ package MobilityViewer.project.graph;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
+/**
+ * Class that can only have intersection nodes
+ */
 public class ReducedGraph extends ListNode<NodeIntersection> {
+    /**
+     * Subclass that contains a reference to all sub intersection nodes.
+     */
     public static class ReducedGraphSubNode extends ListNode<NodeSubIntersection>{
         public ReducedGraphSubNode() {
             super(-1);
         }
     }
 
+    // Reference to the corresponding graph containing all sub nodes
     private final ReducedGraphSubNode subNodeGraph;
 
     private ReducedGraph() {
@@ -98,6 +105,11 @@ public class ReducedGraph extends ListNode<NodeIntersection> {
         System.out.println((size() + total / 2) + " / " + graph.size());
     }
 
+    /**
+     * The class can only be constructed via that function.
+     * @param graph referenced graph
+     * @return constructed reduced graph.
+     */
     public static ReducedGraph constructFrom(Graph graph) {
         ReducedGraph reducedGraph = new ReducedGraph();
         reducedGraph.init(graph);
@@ -147,6 +159,10 @@ public class ReducedGraph extends ListNode<NodeIntersection> {
         return graph;
     }
 
+    /**
+     * Creates a graph that contains only the connection between intersection.
+     * All the sub nodes will be eliminated.
+     */
     public Graph createCorrespondingSubGraph(){
         SortedMap<Long, Node> createdNodes = new TreeMap<>();
 

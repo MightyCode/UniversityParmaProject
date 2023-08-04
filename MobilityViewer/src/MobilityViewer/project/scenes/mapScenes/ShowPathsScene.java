@@ -4,7 +4,7 @@ import MobilityViewer.mightylib.graphics.text.ETextAlignment;
 import MobilityViewer.mightylib.graphics.text.Text;
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
-import MobilityViewer.project.ProjectUtil;
+import MobilityViewer.project.utils.ProjectUtil;
 import MobilityViewer.project.display.NodeRenderer;
 import MobilityViewer.project.display.RoadRenderer;
 import MobilityViewer.project.graph.Dijkstra;

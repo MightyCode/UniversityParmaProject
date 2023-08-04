@@ -1,5 +1,8 @@
 package MobilityViewer.project.graph;
 
+/**
+ * Class that represent, in a context of a reduced graph, a sub node
+ */
 public class NodeSubIntersection extends NodeContainer<Node, NodeIntersection> {
 
     // Neighbour can be null;

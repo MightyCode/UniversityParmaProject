@@ -10,7 +10,7 @@ import MobilityViewer.mightylib.util.math.Color4f;
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.mightylib.util.math.MathTime;
-import MobilityViewer.project.TickTranslator;
+import MobilityViewer.project.utils.TickTranslator;
 import MobilityViewer.project.scenes.loadingContent.ShowVehicleSimulationLoading;
 import MobilityViewer.project.display.GUI.HorizontalSlider;
 import MobilityViewer.project.display.GUI.Slider;

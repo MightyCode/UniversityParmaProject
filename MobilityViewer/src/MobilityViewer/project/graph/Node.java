@@ -6,9 +6,13 @@ import org.joml.Vector4f;
 
 import java.util.HashMap;
 
+/**
+ * Node can only be connected to object of class that contain Node
+ */
 public class Node extends PositionListNode<Node> {
-
+    // Geographic position
     protected Vector2f position;
+    // If we want to override the distance to a node by a given value
     private final HashMap<Node, Float> overrideDistances;
 
     public Node(long id, float x, float y){
@@ -25,6 +29,12 @@ public class Node extends PositionListNode<Node> {
         return getPosition().distance(n.getPosition());
     }
 
+    /**
+     * Convert the position inside the geographic boundaries to the screen position
+     * @param boundaries geographic boundaries
+     * @param rendererDest screen boundaries
+     * @return converted value
+     */
     @Override
     public Vector2f getPositionInBoundaries(Vector4f boundaries, Vector4f rendererDest){
         return new Vector2f(
@@ -34,6 +44,11 @@ public class Node extends PositionListNode<Node> {
         );
     }
 
+    /**
+     * Reimplementation of add method with distances
+     * @param neighbour new neighbour node
+     * @param distance fixed distance to the new node
+     */
     public void add(Node neighbour, float distance){
         super.add(neighbour);
 

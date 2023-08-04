@@ -3,6 +3,10 @@ package MobilityViewer.project.graph;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
+/**
+ * Class that represent a node that have a position in space
+ * @param <T>
+ */
 public abstract class PositionListNode<T extends ListNode<?>> extends ListNode<T> {
 
     public PositionListNode(long id) {

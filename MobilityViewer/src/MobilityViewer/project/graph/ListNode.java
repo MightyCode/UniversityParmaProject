@@ -2,6 +2,10 @@ package MobilityViewer.project.graph;
 
 import java.util.*;
 
+/**
+ * Class that can only contain itself
+ * @param <T> T is a child class of ListNode
+ */
 public abstract class ListNode<T extends ListNode<?>>{
     private static long ID = 0;
     private final long objectId;

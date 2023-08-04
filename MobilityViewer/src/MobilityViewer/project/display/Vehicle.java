@@ -12,6 +12,9 @@ import org.joml.Vector4f;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Representation of a vehicle in space and in time
+ */
 public class Vehicle {
     private static int ID_COUNTER = 0;
     public static float Size = 10f;
@@ -74,7 +77,7 @@ public class Vehicle {
 
     /**
      * Static method so it should be called once.
-     * @param referenceCamera
+     * @param referenceCamera camera given by dev
      */
     public static void initRenderer(Camera2D referenceCamera){
         // Setup renderer
