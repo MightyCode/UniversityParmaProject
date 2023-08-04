@@ -72,7 +72,10 @@ public class Vehicle {
         }
     }
 
-
+    /**
+     * Static method so it should be called once.
+     * @param referenceCamera
+     */
     public static void initRenderer(Camera2D referenceCamera){
         // Setup renderer
         renderer = new Renderer("colorShape2D", true);

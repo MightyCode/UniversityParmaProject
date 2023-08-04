@@ -6,6 +6,19 @@ I used IntelliJ IDEA, so it's recommended to use it.
 In the "project to launch" screen of IntelliJ select the pom.xml file.
 Of dependencies downloads and other stuff will be done by the editor.
 
+My library is located at MobilityViewer/mightylib/
+The project is located at MobilityViewer/project/
+
+Now the project open, with IntelliJ, you will have to give the path of Java in 
+File/Project Structure/Project Settings/SDK.
+The language level should be 11 or higher.
+
+Right click on resources folder, "Mark directory as", "Resources root"
+Right click on src folder, "Mark directory as", "Sources root"
+
+Then to launch the app, click on the green right arrow at the left of method main inside the
+MobilityViewer/project/main/Main.java file.
+
 ## How the app is working
 
 A file is used to list all resources that will be used.
