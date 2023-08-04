@@ -42,27 +42,27 @@ public class DeleteDataScene extends Scene {
                 .setReference(EDirection.None)
                 .setPosition(new Vector2f(windowSize.x * 0.5f, windowSize.y * 0.15f))
                 .setFontSize(30)
-                .setText("All Data");
+                .setText("Delete All Data");
 
         allDataButton.Text.copyTo(allDataButton.OverlapsText);
         allDataButton.OverlapsText.setColor(new Color4f(0.3f))
-                .setText("->All Data<-");
+                .setText("->Delete All Data<-");
 
         BackgroundlessButton parmaMapButton = allDataButton.copy();
         parmaMapButton.Text.setPosition(new Vector2f(windowSize.x * 0.5f, windowSize.y * 0.3f))
-                .setText("Just parma map");
+                .setText("Delete geographic data only");
 
         parmaMapButton.Text.copyTo(parmaMapButton.OverlapsText);
         parmaMapButton.OverlapsText.setColor(new Color4f(0.3f))
-                .setText("->Just parma map<-");
+                .setText("->Delete geographic data only<-");
 
         BackgroundlessButton scooterPathButton = allDataButton.copy();
         scooterPathButton.Text.setPosition(new Vector2f(windowSize.x * 0.5f, windowSize.y * 0.45f))
-                .setText("Scooter paths");
+                .setText("Delete generated paths only");
 
         scooterPathButton.Text.copyTo(scooterPathButton.OverlapsText);
         scooterPathButton.OverlapsText.setColor(new Color4f(0.3f))
-                .setText("->Scooter paths<-");
+                .setText("->Delete generated paths only<-");
 
         BackgroundlessButton buttonQuit = allDataButton.copy();
         buttonQuit.Text.setPosition(new Vector2f(windowSize.x * 0.5f, windowSize.y * 0.9f))

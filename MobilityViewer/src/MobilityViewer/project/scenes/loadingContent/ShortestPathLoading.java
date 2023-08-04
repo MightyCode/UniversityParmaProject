@@ -8,8 +8,7 @@ import org.json.JSONObject;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class ShortestPathLoading extends LoadingContent{
-
+public class ShortestPathLoading extends LoadingContent {
     protected ShortestPathLoading.SPLResult splResult;
 
     public static class SPLResult extends Result {

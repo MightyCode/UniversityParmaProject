@@ -10,14 +10,14 @@ import MobilityViewer.project.display.RoadRenderer;
 import MobilityViewer.project.graph.Dijkstra;
 import MobilityViewer.project.graph.Node;
 import MobilityViewer.project.main.ActionId;
-import MobilityViewer.project.scenes.loadingContent.BikeMovementLoading;
+import MobilityViewer.project.scenes.loadingContent.ShowPathsLoading;
 import org.joml.Vector2f;
 
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMovementLoading.BMResult> {
+public class ShowPathsScene extends SceneUsingMap<ShowPathsLoading, ShowPathsLoading.BMResult> {
     private NodeRenderer<Node> nodeRenderer;
     private RoadRenderer roadRenderer;
     private RoadRenderer pathRenderer;
@@ -26,8 +26,8 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
     private boolean showDijkstraOnTop;
     private RoadRenderer dijkstraRenderer;
 
-    public ShowBikeMovementsScene() {
-        super(new BikeMovementLoading(),
+    public ShowPathsScene(String resourceCategory) {
+        super(new ShowPathsLoading(resourceCategory),
                 "Show / Not show dijkstra on top : space\n Next path : enter\n");
     }
 
@@ -42,7 +42,7 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
         mapCamera.setZoomLevel(new Vector2f(mapCamera.getZoomLevel()).mul(factor));
         nodeRenderer.updateNodes(
                 loadingResult.nodes.values(), boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
-        roadRenderer.updateNodes(
+        roadRenderer.updateRoads(
                 loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
     }
 
@@ -55,7 +55,7 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
 
         roadRenderer = new RoadRenderer(mapCamera);
         roadRenderer.init(loadingResult.nodes);
-        roadRenderer.updateNodes(
+        roadRenderer.updateRoads(
                 loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         pathRenderer = new RoadRenderer(mapCamera);
@@ -80,7 +80,7 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
 
         pathRenderer.setColor(ColorList.Green());
         pathRenderer.init(loadingResult.paths[currentPathDisplayed]);
-        pathRenderer.updateNodes(loadingResult.paths[currentPathDisplayed],
+        pathRenderer.updateRoads(loadingResult.paths[currentPathDisplayed],
                 boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         Vector2f startPosition = loadingResult.firstNodes.get(currentPathDisplayed).getPosition();
@@ -118,7 +118,7 @@ public class ShowBikeMovementsScene extends SceneMap<BikeMovementLoading, BikeMo
         }
 
         dijkstraRenderer.init(pathNodes);
-        dijkstraRenderer.updateNodes(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
+        dijkstraRenderer.updateRoads(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
     }
 
     @Override

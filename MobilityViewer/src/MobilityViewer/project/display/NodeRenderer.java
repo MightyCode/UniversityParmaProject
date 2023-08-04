@@ -11,16 +11,24 @@ import org.joml.Vector4f;
 
 import java.util.*;
 
+/**
+ * Display a bunch of rectangles that correspond to node position.
+ * @param <T> Type of graph node with position representation to render. Examples : Node, NodeInterval
+ */
 public class NodeRenderer<T extends PositionListNode<?>> {
     private static final int EBO_SHIFT = 6;
     private static final int VBO_SHIFT = 8;
+
+    // Custom renderer
     private final Renderer renderer;
+
+    // List of rectangles' vertices
     private float[] vbo;
     private final int vboPositionIndex;
-
     private float nodeSize;
 
     public NodeRenderer(Camera2D referenceCamera){
+        // Setup the renderer
         renderer = new Renderer("colorShape2D", true);
         renderer.switchToColorMode(ColorList.Red());
         renderer.getShape().setEboStorage(Shape.DYNAMIC_STORE);
@@ -44,7 +52,12 @@ public class NodeRenderer<T extends PositionListNode<?>> {
         return nodeSize;
     }
 
-    public void init(Collection<T> nodes){
+    /**
+     * Precompute the size of storage using the number of nodes.
+     * Only the position in scene will change in time, precompute the fixed order of vertex to draw.
+     * @param nodes Collection of parametrized nodes
+     */
+    public void init(Collection<T> nodes) {
         int [] ebo = new int[EBO_SHIFT  * nodes.size()];
         int [] eboValues = new int[]{ 0, 1, 2, 0, 2, 3 };
 
@@ -53,13 +66,25 @@ public class NodeRenderer<T extends PositionListNode<?>> {
                 ebo[EBO_SHIFT * i + j] = eboValues[j] + 4 * i;
         }
 
+        // Give the renderer the order of vertex to draw
         renderer.getShape().setEbo(ebo);
+
+        // Create the array containing the future vertex positions.
         vbo = new float[VBO_SHIFT * nodes.size()];
 
         System.out.println("Number of nodes : " + nodes.size());
     }
 
-    public void updateNodes(Collection<T> nodes, Vector4f boundaries, Vector4f displayBoundaries, float zoomLevel){
+    /**
+     * Update the renderer with nodes and their positions
+     *
+     * @param nodes List of nodes inside the boundaries
+     * @param boundaries geographic boundaries
+     * @param displayBoundaries display size destination
+     * @param zoomLevel current camera zoom level
+     */
+    public void updateNodes(Collection<T> nodes, Vector4f boundaries, Vector4f displayBoundaries, float zoomLevel) {
+        // Zoom level is used to have the same node size.
         float nodeSize = this.nodeSize / zoomLevel;
 
         int i = 0;
@@ -69,6 +94,7 @@ public class NodeRenderer<T extends PositionListNode<?>> {
         for (PositionListNode<?> node : nodes){
             position = node.getPositionInBoundaries(boundaries, displayBoundaries);
 
+            // Compute four positions of the current node representation (a rectangle)
             temp.x = position.x - nodeSize / 2;
             temp.z = position.x + nodeSize / 2;
             temp.y = position.y - nodeSize / 2;
@@ -81,6 +107,7 @@ public class NodeRenderer<T extends PositionListNode<?>> {
             ++i;
         }
 
+        // Update the renderer with computed vertex positions
         renderer.getShape().updateVbo(vbo, vboPositionIndex);
     }
 

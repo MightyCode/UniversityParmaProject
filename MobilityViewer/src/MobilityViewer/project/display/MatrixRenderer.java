@@ -10,6 +10,10 @@ import org.joml.Vector4f;
 
 public class MatrixRenderer {
 
+    /**
+     * HeatMap use a gradiant of color, black to red, red to yellow, then yellow to white
+     * ColorInterval use a gradiant between two given colors
+     */
     public enum EMatrixRendererMode {
         HeatMap,
         ColorInterval
@@ -18,19 +22,21 @@ public class MatrixRenderer {
     private static final int EBO_SHIFT = 6;
     private static final int VBO_POSITION_SHIFT = 4 * 2;
     private static final int VBO_COLOR_SHIFT = 4 * 4;
-    private final Renderer renderer;
 
+    // Custom renderer
+    private final Renderer renderer;
     private final int numberCell;
     private final int vboPositionIndex;
     private final int vboColorIndex;
-
     private EMatrixRendererMode colorMode;
-    private Color4f lowValue;
-    private Color4f highValue;
+
+    // Values used to the colors interval color mode
+    private Color4f lowValue, highValue;
 
     public MatrixRenderer(Camera2D camera, int numberCell) {
         this.numberCell = numberCell;
 
+        // Setup the renderer
         renderer = new Renderer("multiColoredShape2D", true);
         renderer.switchToColorMode(ColorList.Red());
         renderer.getShape().setEboStorage(Shape.STATIC_STORE);
@@ -58,6 +64,9 @@ public class MatrixRenderer {
         highValue = newValue;
     }
 
+    /**
+     * Convert the value taking in account the color mode, the maximum and minimum values.
+     */
     public Color4f valueToColor(float value){
         switch (colorMode){
             case HeatMap: default:
@@ -67,31 +76,48 @@ public class MatrixRenderer {
         }
     }
 
-    public void updateNodes(int[][] matrix, float minValue, float maxValue, Vector4f displayBoundaries){
+    /**
+     * Update the renderer using matrix values
+     *
+     * @param matrix values of matrix cells
+     * @param minValue minimum value of the matrix cells
+     * @param maxValue maximum value of the matrix cells
+     * @param displayBoundaries display size destination
+     */
+    public void updateRenderer(int[][] matrix, float minValue, float maxValue, Vector4f displayBoundaries){
         float [] position = new float[numberCell * VBO_POSITION_SHIFT];
         float [] colors = new float[numberCell * VBO_COLOR_SHIFT];
+
+        // Order of vertices to draw
         int [] ebo = new int[numberCell * EBO_SHIFT];
+        // Reference of order
         int [] eboValues = new int[]{ 0, 1, 2, 0, 2, 3 };
 
         Vector2f cellSize = new Vector2f(
                 (displayBoundaries.z - displayBoundaries.x) / matrix[0].length,
                 (displayBoundaries.w - displayBoundaries.y) / matrix.length);
 
-        for (int y = 0; y < matrix.length; ++y){
-            for (int x = 0; x < matrix[y].length; ++x){
+        // For each column
+        for (int y = 0; y < matrix.length; ++y) {
+            // For each row
+            for (int x = 0; x < matrix[y].length; ++x) {
 
+                // Compute the color using the current value : matrix[y][x]
                 Color4f color = valueToColor((matrix[y][x] - minValue) / (maxValue - minValue));
 
                 Vector2f leftUpPosition = new Vector2f(
                         displayBoundaries.x + (displayBoundaries.z - displayBoundaries.x) * (x * 1.0f / matrix[y].length),
                         displayBoundaries.y + (displayBoundaries.w - displayBoundaries.y) * (y * 1.0f / matrix.length));
 
+                // Four positions of the current matrix cell in the scene.
                 Vector4f fourPositions = new Vector4f(
                          leftUpPosition.x, leftUpPosition.y,
                         leftUpPosition.x + cellSize.x, leftUpPosition.y + cellSize.y
                 );
 
                 int i = y * matrix[y].length + x;
+
+                // List positions for the renderer
 
                 position[i * VBO_POSITION_SHIFT + 0] = fourPositions.x;
                 position[i * VBO_POSITION_SHIFT + 1] = fourPositions.w;
@@ -105,14 +131,20 @@ public class MatrixRenderer {
                 position[i * VBO_POSITION_SHIFT + 6] = fourPositions.z;
                 position[i * VBO_POSITION_SHIFT + 7] = fourPositions.w;
 
+                // List colors for the renderer
+
                 for (int l = 0; l < 16; ++l){
                     colors[i * VBO_COLOR_SHIFT + l] = color.get(l % 4);
                 }
+
+                // List the order of vertex to draw
 
                 for (int j = 0; j < EBO_SHIFT; ++j)
                     ebo[EBO_SHIFT * i + j] = eboValues[j] + 4 * i;
             }
         }
+
+        // Update the renderer with computed values
 
         renderer.getShape().setEbo(ebo);
         renderer.getShape().updateVbo(position, vboPositionIndex);

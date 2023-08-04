@@ -2,6 +2,7 @@ package MobilityViewer.project.scenes.loadingContent;
 
 import MobilityViewer.mightylib.resources.Resources;
 import MobilityViewer.mightylib.resources.data.CSVFile;
+import MobilityViewer.mightylib.resources.data.JSONFile;
 import MobilityViewer.project.graph.Graph;
 import MobilityViewer.project.graph.Node;
 import MobilityViewer.project.graph.Road;
@@ -14,8 +15,8 @@ import java.util.ArrayList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class BikeMovementLoading extends LoadingContent{
-    protected BikeMovementLoading.BMResult bmResult;
+public class ShowPathsLoading extends LoadingContent{
+    protected ShowPathsLoading.BMResult bmResult;
 
     public static class BMResult extends LoadingContent.Result {
         public SortedMap<Long, Node> nodes;
@@ -28,10 +29,13 @@ public class BikeMovementLoading extends LoadingContent{
         public Graph graph;
     }
 
-    public BikeMovementLoading() {
-        super(new BikeMovementLoading.BMResult());
+    private final String resourceCategory;
 
-        bmResult = (BikeMovementLoading.BMResult) result;
+    public ShowPathsLoading(String resourceCategory) {
+        super(new ShowPathsLoading.BMResult());
+
+        bmResult = (ShowPathsLoading.BMResult) result;
+        this.resourceCategory = resourceCategory;
     }
 
     @Override
@@ -79,18 +83,14 @@ public class BikeMovementLoading extends LoadingContent{
         step = "Parsing paths";
         percentage = 0.6f;
 
-        CSVFile bikesPath = Resources.getInstance().getResource(CSVFile.class, "bikes-path");
+        JSONFile displayableResources = Resources.getInstance().getResource(JSONFile.class, "displayableResources");
+        JSONObject resources = displayableResources.getObject().getJSONObject(resourceCategory);
+
+        CSVFile bikesPath = Resources.getInstance().getResource(CSVFile.class, resources.getString("file"));
+
+        bmResult.paths = new SortedMap[bikesPath.size()];
 
         int number = 0;
-
-        for (int i = 0; i < bikesPath.size(); ++i){
-            if (bikesPath.getData(i, 0).toLowerCase().startsWith("linestring"))
-                ++number;
-        }
-
-        bmResult.paths = new SortedMap[number];
-
-        number = 0;
 
         for (int i = 0; i < bikesPath.size(); ++i){
             String bikePath = bikesPath.getData(i, 0);
@@ -119,7 +119,6 @@ public class BikeMovementLoading extends LoadingContent{
             bmResult.lastNodes.add(previous);
 
             ++number;
-
         }
 
         step = "Finished";

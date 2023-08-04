@@ -5,14 +5,14 @@ import MobilityViewer.mightylib.graphics.renderer.Shape;
 import MobilityViewer.mightylib.scene.Camera2D;
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.project.graph.Node;
-import MobilityViewer.project.scenes.mapScenes.ShowScootersSimulation;
+import MobilityViewer.project.scenes.mapScenes.ShowVehicleSimulationScene;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Scooter {
+public class Vehicle {
     private static int ID_COUNTER = 0;
     public static float Size = 10f;
 
@@ -41,7 +41,7 @@ public class Scooter {
 
     private Vector2f position;
 
-    public Scooter(long startTime, long timeToAchievePath){
+    public Vehicle(long startTime, long timeToAchievePath){
         this.startTime = startTime;
         this.timeToAchievePath = timeToAchievePath;
         path = new ArrayList<>();
@@ -74,6 +74,7 @@ public class Scooter {
 
 
     public static void initRenderer(Camera2D referenceCamera){
+        // Setup renderer
         renderer = new Renderer("colorShape2D", true);
         renderer.switchToColorMode(ColorList.Orange());
         renderer.getShape().setEboStorage(Shape.STREAM_STORE);
@@ -84,7 +85,7 @@ public class Scooter {
     }
 
     public void update(long currentTime, Vector4f boundaries, Vector4f rendererDest){
-        long startTime = ShowScootersSimulation.TRANSLATOR.convert(this.startTime);
+        long startTime = ShowVehicleSimulationScene.TRANSLATOR.convert(this.startTime);
         if (currentTime < startTime || currentTime >= startTime + timeToAchievePath)
             return;
 

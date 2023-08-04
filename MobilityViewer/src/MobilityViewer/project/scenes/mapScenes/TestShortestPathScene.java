@@ -14,7 +14,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class TestShortestPathScene extends SceneMap<ShortestPathLoading, ShortestPathLoading.SPLResult> {
+public class TestShortestPathScene extends SceneUsingMap<ShortestPathLoading, ShortestPathLoading.SPLResult> {
     private NodeRenderer<Node> nodeRenderer;
     private RoadRenderer roadRenderer;
     private RoadRenderer pathRenderer;
@@ -28,7 +28,9 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
     private Graph reducedCorrespondingGraph;
 
     public TestShortestPathScene() {
-        super(new ShortestPathLoading());
+        super(new ShortestPathLoading(),
+                "Switch normal computed path / computed \n via reduced path : space\n"
+                        +   "Create new path : enter\n");
     }
 
     @Override
@@ -39,9 +41,7 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
         showNormalPathInFront = false;
     }
 
-    private void createNewPath(){
-        //System.out.println("Do Dijkstra algorithm");
-
+    private void createNewPath() {
         Long[] key = new Long[loadingResult.nodes.size()];
         loadingResult.nodes.keySet().toArray(key);
 
@@ -52,7 +52,7 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
         SortedMap<Long, Node> pathNodes = createPath(path);
 
         pathRenderer.init(pathNodes);
-        pathRenderer.updateNodes(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
+        pathRenderer.updateRoads(pathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         path = Dijkstra.findShortestPathReduced(reducedGraph, reducedCorrespondingGraph, from, to);
 
@@ -62,7 +62,7 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
         SortedMap<Long, Node> reducedPathNodes = createPath(path);
 
         reducedPathRenderer.init(reducedPathNodes);
-        reducedPathRenderer.updateNodes(reducedPathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
+        reducedPathRenderer.updateRoads(reducedPathNodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
     }
 
     public SortedMap<Long, Node> createPath(List<Node> path){
@@ -82,14 +82,13 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
             previous = next;
         }
 
-
         return pathNodes;
     }
 
     public void zoom(Vector2f factor){
         mapCamera.setZoomLevel(new Vector2f(mapCamera.getZoomLevel()).mul(factor));
         nodeRenderer.updateNodes(loadingResult.nodes.values(), boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
-        roadRenderer.updateNodes(loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+        roadRenderer.updateRoads(loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
     }
 
     @Override
@@ -100,7 +99,7 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
 
         roadRenderer = new RoadRenderer(mapCamera);
         roadRenderer.init(loadingResult.nodes);
-        roadRenderer.updateNodes(loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
+        roadRenderer.updateRoads(loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         pathRenderer = new RoadRenderer(mapCamera);
         pathRenderer.setColor(ColorList.Green());
@@ -144,9 +143,8 @@ public class TestShortestPathScene extends SceneMap<ShortestPathLoading, Shortes
             mapCamera.moveYinZoom( -mouseManager.posY() + mouseManager.oldPosY());
         }
 
-        if (inputManager.inputPressed(ActionId.RIGHT_CLICK)){
+        if (inputManager.inputPressed(ActionId.RIGHT_CLICK))
             isDragging = true;
-        }
 
         if (inputManager.inputPressed(ActionId.SHIFT)) {
             mapCamera.setZoomReference(EDirection.None);

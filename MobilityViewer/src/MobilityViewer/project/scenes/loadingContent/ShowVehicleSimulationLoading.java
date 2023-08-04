@@ -2,9 +2,10 @@ package MobilityViewer.project.scenes.loadingContent;
 
 import MobilityViewer.mightylib.resources.Resources;
 import MobilityViewer.mightylib.resources.data.CSVFile;
+import MobilityViewer.mightylib.resources.data.JSONFile;
 import MobilityViewer.mightylib.util.DataFolder;
 import MobilityViewer.mightylib.util.math.MathTime;
-import MobilityViewer.project.display.Scooter;
+import MobilityViewer.project.display.Vehicle;
 import MobilityViewer.project.graph.Graph;
 import MobilityViewer.project.graph.Node;
 import MobilityViewer.project.graph.Road;
@@ -18,20 +19,23 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class ShowVehicleLoading extends LoadingContent {
+public class ShowVehicleSimulationLoading extends LoadingContent {
 
-    protected ShowVehicleLoading.SSLResult sslResult;
+    protected ShowVehicleSimulationLoading.SSLResult sslResult;
 
     public static class SSLResult extends Result {
         public SortedMap<Long, Node> nodes;
         public SortedMap<Long, Road> roads;
-        public ArrayList<Scooter> scooters;
+        public ArrayList<Vehicle> scooters;
     }
 
-    public ShowVehicleLoading() {
-        super(new ShowVehicleLoading.SSLResult());
+    private final String resourceCategory;
 
-        sslResult = (ShowVehicleLoading.SSLResult) result;
+    public ShowVehicleSimulationLoading(String resourceCategory) {
+        super(new ShowVehicleSimulationLoading.SSLResult());
+
+        sslResult = (ShowVehicleSimulationLoading.SSLResult) result;
+        this.resourceCategory = resourceCategory;
     }
 
     @Override
@@ -74,8 +78,13 @@ public class ShowVehicleLoading extends LoadingContent {
         System.out.println("Get csv and create scooters");
 
         sslResult.scooters = new ArrayList<>();
-        CSVFile csvFile = Resources.getInstance().getResource(CSVFile.class, "Noleggi_Parma_2022");
-        String paths = DataFolder.getFileContent("scooters-path.txt");
+
+        JSONFile displayableResources = Resources.getInstance().getResource(JSONFile.class, "displayableResources");
+        JSONObject resources = displayableResources.getObject().getJSONObject(resourceCategory);
+        JSONObject info = resources.getJSONObject("info");
+
+        CSVFile csvFile = Resources.getInstance().getResource(CSVFile.class, resources.getString("file"));
+        String paths = DataFolder.getFileContent(resources.getString("file") + "-path.txt");
 
         if (interrupted())
             return;
@@ -86,7 +95,7 @@ public class ShowVehicleLoading extends LoadingContent {
             percentage = 0.2f;
 
             String startDate, endDate;
-            Scooter current;
+            Vehicle current;
 
             float scooterLoadingPercentage = 0.01f;
 
@@ -98,30 +107,29 @@ public class ShowVehicleLoading extends LoadingContent {
                     return;
 
                 Vector2f startPosition = new Vector2f(
-                        Float.parseFloat(csvFile.getData(i, 2)),
-                        Float.parseFloat(csvFile.getData(i, 1))
+                        Float.parseFloat(csvFile.getData(i, info.getJSONObject("startLongitude").getInt("col"))),
+                        Float.parseFloat(csvFile.getData(i, info.getJSONObject("startLatitude").getInt("col")))
                 );
 
                 Vector2f endPosition = new Vector2f(
-                        Float.parseFloat(csvFile.getData(i, 5)),
-                        Float.parseFloat(csvFile.getData(i, 4))
+                        Float.parseFloat(csvFile.getData(i, info.getJSONObject("endLongitude").getInt("col"))),
+                        Float.parseFloat(csvFile.getData(i, info.getJSONObject("endLatitude").getInt("col")))
                 );
 
                 if (SceneConstants.inBoundaries(boundaries, startPosition)
                         && (SceneConstants.inBoundaries(boundaries, endPosition))) {
-                    startDate = csvFile.getData(i, 0);
-                    endDate = csvFile.getData(i, 3);
+                    startDate = csvFile.getData(i, info.getJSONObject("startTime").getInt("col"));
+                    endDate = csvFile.getData(i, info.getJSONObject("endTime").getInt("col"));
 
                     long startTick = MathTime.datetimeStrToTick(startDate) - startTime;
                     long duration = MathTime.datetimeStrToTick(endDate) - startTime - startTick;
-                    current = new Scooter(startTick, duration);
+                    current = new Vehicle(startTick, duration);
 
                     String[] pathIdNodes = splitPath[indexInFile].split(",");
                     List<Node> path = new ArrayList<>();
                     if (pathIdNodes.length >= 2) {
-                        for (String idNode : pathIdNodes) {
+                        for (String idNode : pathIdNodes)
                             path.add(sslResult.nodes.get(Long.parseLong(idNode.trim())));
-                        }
 
                         current.init(path);
                         sslResult.scooters.add(current);
@@ -130,11 +138,11 @@ public class ShowVehicleLoading extends LoadingContent {
                     ++indexInFile;
                 }
 
-                if (i > scooterLoadingPercentage * csvFile.size()){
+                if (i > scooterLoadingPercentage * csvFile.size()) {
                     scooterLoadingPercentage += 0.01f;
 
                     step = "Scooter path parsing : " + (int)(scooterLoadingPercentage * splitPath.length + 1)
-                            + " / " + splitPath.length + " (" + csvFile.size() + ")";;
+                            + " / " + splitPath.length + " (" + csvFile.size() + ")";
                     percentage = 0.2f + 0.8f * scooterLoadingPercentage;
                 }
             }

@@ -6,14 +6,14 @@ import MobilityViewer.mightylib.resources.Resources;
 import MobilityViewer.mightylib.resources.data.CSVFile;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.mightylib.util.math.MightyMath;
-import MobilityViewer.project.scenes.loadingContent.ParmaShowPointLoading;
+import MobilityViewer.project.scenes.loadingContent.ShowParmaLoading;
 import MobilityViewer.project.display.NodeRenderer;
 import MobilityViewer.project.display.RoadRenderer;
 import MobilityViewer.project.graph.*;
 import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
 
-public class ShowParmaScene extends SceneMap<ParmaShowPointLoading, ParmaShowPointLoading.PSPResult> {
+public class ShowParmaScene extends SceneUsingMap<ShowParmaLoading, ShowParmaLoading.PSPResult> {
     private NodeRenderer<Node> nodeRenderer;
     private RoadRenderer roadRenderer;
 
@@ -22,7 +22,7 @@ public class ShowParmaScene extends SceneMap<ParmaShowPointLoading, ParmaShowPoi
     private boolean showStations;
 
     public ShowParmaScene() {
-        super(new ParmaShowPointLoading(), "Show / Hide stations : space\n");
+        super(new ShowParmaLoading(), "Show / Hide stations : space\n");
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ShowParmaScene extends SceneMap<ParmaShowPointLoading, ParmaShowPoi
         mapCamera.setZoomLevel(new Vector2f(mapCamera.getZoomLevel()).mul(factor));
         nodeRenderer.updateNodes(
                 loadingResult.nodes.values(), boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
-        roadRenderer.updateNodes(
+        roadRenderer.updateRoads(
                 loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
 
         for (Text text : bikeStationsName)
@@ -53,7 +53,7 @@ public class ShowParmaScene extends SceneMap<ParmaShowPointLoading, ParmaShowPoi
 
         roadRenderer = new RoadRenderer(mapCamera);
         roadRenderer.init(loadingResult.nodes);
-        roadRenderer.updateNodes(
+        roadRenderer.updateRoads(
                 loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         CSVFile bikeStations = Resources.getInstance().getResource(CSVFile.class, "coordinate parma bike sharing");

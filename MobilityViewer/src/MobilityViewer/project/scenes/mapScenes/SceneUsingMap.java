@@ -11,7 +11,6 @@ import MobilityViewer.mightylib.resources.data.JSONFile;
 import MobilityViewer.mightylib.scene.Camera2D;
 import MobilityViewer.mightylib.util.math.Color4f;
 import MobilityViewer.mightylib.util.math.EDirection;
-import MobilityViewer.project.display.StrSelector;
 import MobilityViewer.project.scenes.loadingContent.LoadingContent;
 import MobilityViewer.project.main.ActionId;
 import MobilityViewer.project.scenes.LoadingScene;
@@ -22,7 +21,7 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-public abstract class SceneMap<T extends LoadingContent, K extends LoadingContent.Result> extends LoadingScene<T, K> {
+public abstract class SceneUsingMap<T extends LoadingContent, K extends LoadingContent.Result> extends LoadingScene<T, K> {
     public static final float MOVE_SPEED = 600;
     public static final float SHIFT_SPEED = MOVE_SPEED * 2f;
 
@@ -49,11 +48,11 @@ public abstract class SceneMap<T extends LoadingContent, K extends LoadingConten
 
     protected String currentResourceCategory;
 
-    public SceneMap(T T) {
+    public SceneUsingMap(T T) {
         this(T, "");
     }
 
-    public SceneMap(T T, String furtherInstruction) {
+    public SceneUsingMap(T T, String furtherInstruction) {
         super(T);
         this.furtherInstruction = furtherInstruction;
     }

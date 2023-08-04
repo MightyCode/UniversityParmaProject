@@ -2,6 +2,7 @@ package MobilityViewer.project.scenes.loadingContent;
 
 import MobilityViewer.mightylib.resources.Resources;
 import MobilityViewer.mightylib.resources.data.CSVFile;
+import MobilityViewer.mightylib.resources.data.JSONFile;
 import MobilityViewer.mightylib.util.DataFolder;
 import MobilityViewer.project.ProjectUtil;
 import MobilityViewer.project.graph.*;
@@ -14,15 +15,21 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class ExportScooterPathLoading extends LoadingContent{
-    protected ExportScooterPathLoading.EXPLResult explResult;
+/**
+ * Scene used to create the paths for vehicles.
+ */
+public class ExportVehiclesPathLoading extends LoadingContent {
+    protected ExportVehiclesPathLoading.EXPLResult explResult;
 
     public static class EXPLResult extends LoadingContent.Result { }
 
-    public ExportScooterPathLoading() {
-        super(new ExportScooterPathLoading.EXPLResult());
+    private final String resourceCategory;
 
-        explResult = (ExportScooterPathLoading.EXPLResult) result;
+    public ExportVehiclesPathLoading(String resourceCategory) {
+        super(new ExportVehiclesPathLoading.EXPLResult());
+
+        explResult = (ExportVehiclesPathLoading.EXPLResult) result;
+        this.resourceCategory = resourceCategory;
     }
 
     @Override
@@ -82,7 +89,11 @@ public class ExportScooterPathLoading extends LoadingContent{
 
         float scooterPathCreationPercentage = 0.01f;
 
-        CSVFile csvFile = Resources.getInstance().getResource(CSVFile.class, "Noleggi_Parma_2022");
+        JSONFile displayableResources = Resources.getInstance().getResource(JSONFile.class, "displayableResources");
+        JSONObject resources = displayableResources.getObject().getJSONObject(resourceCategory);
+        JSONObject info = resources.getJSONObject("info");
+
+        CSVFile csvFile = Resources.getInstance().getResource(CSVFile.class, resources.getString("file"));
         StringBuilder export = new StringBuilder();
 
         if (interrupted())
@@ -93,13 +104,13 @@ public class ExportScooterPathLoading extends LoadingContent{
 
         for (int i = 0; i < csvFile.size(); ++i) {
             Vector2f startPosition = new Vector2f(
-                    Float.parseFloat(csvFile.getData(i, 2)),
-                    Float.parseFloat(csvFile.getData(i, 1))
+                    Float.parseFloat(csvFile.getData(i, info.getJSONObject("startLongitude").getInt("col"))),
+                    Float.parseFloat(csvFile.getData(i, info.getJSONObject("startLatitude").getInt("col")))
             );
 
             Vector2f endPosition = new Vector2f(
-                    Float.parseFloat(csvFile.getData(i, 5)),
-                    Float.parseFloat(csvFile.getData(i, 4))
+                    Float.parseFloat(csvFile.getData(i, info.getJSONObject("endLongitude").getInt("col"))),
+                    Float.parseFloat(csvFile.getData(i, info.getJSONObject("endLatitude").getInt("col")))
             );
 
             if (SceneConstants.inBoundaries(boundaries, startPosition)
@@ -151,7 +162,7 @@ public class ExportScooterPathLoading extends LoadingContent{
 
         step = "Save paths in file";
         percentage = 0.999f;
-        DataFolder.saveFile(export.toString(), "scooters-path.txt");
+        DataFolder.saveFile(export.toString(), resources.getString("file") + "-path.txt");
 
         step = "Finished";
         percentage = 1f;

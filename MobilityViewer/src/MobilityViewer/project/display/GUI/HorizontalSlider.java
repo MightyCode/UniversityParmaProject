@@ -13,14 +13,34 @@ public class HorizontalSlider extends Slider {
         super(referenceCamera, inputManager, mouseManager, position, size, minValue, maxValue, 0);
     }
 
+    protected void setButtonPositionDrag(RectangleRenderer button,
+                                         Vector2f buttonBoundaries, Vector2f mousePosition){
+        Vector2f newPosition = new Vector2f(
+                mousePosition.x - button.scale().x * 0.5f,
+                button.position().y
+        );
 
+        if (newPosition.x < buttonBoundaries.x) {
+            newPosition.x = buttonBoundaries.x;
+        } else if (newPosition.x > buttonBoundaries.y) {
+            newPosition.x = buttonBoundaries.y;
+        }
+
+        button.setPosition(newPosition);
+    }
+
+
+    /**
+     * Overriding all methods to make the slider working.
+     * All protected method will be called by super class.
+     **/
     @Override
-    protected void setBarSize(RectangleRenderer bar, Vector2f sliderSize){
+    protected void setBarSize(RectangleRenderer bar, Vector2f sliderSize) {
         bar.setSizePix(sliderSize.x * 1,sliderSize.y * 0.1f);
     }
 
     @Override
-    protected void setBarPosition(RectangleRenderer bar, Vector2f sliderPosition, Vector2f sliderSize){
+    protected void setBarPosition(RectangleRenderer bar, Vector2f sliderPosition, Vector2f sliderSize) {
         bar.setPosition(
                 new Vector2f(sliderPosition.x,
                         sliderPosition.y + sliderSize.y * 0.5f - bar.scale().y * 0.5f)
@@ -28,22 +48,22 @@ public class HorizontalSlider extends Slider {
     }
 
     @Override
-    protected void setButtonSize(RectangleRenderer button, Vector2f sliderSize){
+    protected void setButtonSize(RectangleRenderer button, Vector2f sliderSize) {
         float ref = Math.min(sliderSize.x, sliderSize.y);
 
         button.setSizePix(ref *  0.28f, ref * 0.32f);
     }
 
     @Override
-    protected void setBasicButtonPosition(RectangleRenderer button, Vector2f sliderPosition, Vector2f sliderSize){
+    protected void setBasicButtonPosition(RectangleRenderer button, Vector2f sliderPosition, Vector2f sliderSize) {
         button.setPosition(
-          new Vector2f(
-                  sliderPosition.x + sliderSize.x * 0.5f - button.scale().x * 0.5f,
-                sliderPosition.y + sliderSize.y * 0.5f - button.scale().y * 0.5f));
+              new Vector2f(
+                      sliderPosition.x + sliderSize.x * 0.5f - button.scale().x * 0.5f,
+                    sliderPosition.y + sliderSize.y * 0.5f - button.scale().y * 0.5f));
     }
 
     @Override
-    protected void setButtonPositionWithCurrentValue(RectangleRenderer button, Vector2f buttonBoundaries){
+    protected void setButtonPositionWithCurrentValue(RectangleRenderer button, Vector2f buttonBoundaries) {
         button.setPosition(
                 new Vector2f(
                         (float)MightyMath.mapd(getCurrentValue(), getMinValue(), getMaxValue(),
@@ -53,24 +73,11 @@ public class HorizontalSlider extends Slider {
         );
     }
 
+    /**
+     * Returns the current value of the slider that is contains on the values' boundary.
+     */
     @Override
     protected double returnCurrentValue(RectangleRenderer button, Vector2f buttonBoundaries){
         return MightyMath.mapd(button.position().x, buttonBoundaries.x, buttonBoundaries.y, getMinValue(), getMaxValue());
-    }
-
-    protected void setButtonPositionDrag(RectangleRenderer button,
-                                                   Vector2f buttonBoundaries, Vector2f mousePosition){
-        Vector2f newPosition = new Vector2f(
-                mousePosition.x - button.scale().x * 0.5f,
-                button.position().y
-        );
-
-        if (newPosition.x < buttonBoundaries.x){
-            newPosition.x = buttonBoundaries.x;
-        } else if (newPosition.x > buttonBoundaries.y) {
-            newPosition.x = buttonBoundaries.y;
-        }
-
-        button.setPosition(newPosition);
     }
 }

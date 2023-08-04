@@ -12,10 +12,17 @@ import org.joml.Vector4f;
 import java.util.Map;
 import java.util.SortedMap;
 
+/**
+ * Display a bunch of rectangles that correspond to roads.
+ */
 public class RoadRenderer {
     private static final int EBO_SHIFT = 6;
     private static final int VBO_SHIFT = 8;
+
+    // Custom renderer
     private final Renderer renderer;
+
+    // List of rectangles' vertices
     float[] vbo;
     private final int vboPositionIndex;
 
@@ -24,6 +31,7 @@ public class RoadRenderer {
     private float roadSize;
 
     public RoadRenderer(Camera2D referenceCamera){
+        // Setup the renderer
         renderer = new Renderer("colorShape2D", true);
         renderer.switchToColorMode(ColorList.Blue());
         renderer.getShape().setEboStorage(Shape.DYNAMIC_STORE);
@@ -40,6 +48,11 @@ public class RoadRenderer {
         renderer.switchToColorMode(color);
     }
 
+    /**
+     * Precompute the size of storage using the number of road.
+     * Only the position in scene will change in time, precompute the fixed order of vertex to draw.
+     * @param nodes Ordered list of connected nodes
+     */
     public void init(SortedMap<Long, Node> nodes){
         roadNumber = 0;
         for (Map.Entry<Long, Node> entry: nodes.entrySet()){
@@ -57,17 +70,28 @@ public class RoadRenderer {
                 ebo[EBO_SHIFT * i + j] = eboValues[j] + 4 * i;
         }
 
-        //System.out.println("Number of road : " + roadNumber);
-
+        // Give the renderer the order of vertex to draw
         renderer.getShape().setEbo(ebo);
+
+        // Create the array containing the future vertex positions.
         vbo = new float[VBO_SHIFT * roadNumber];
+
+        //System.out.println("Number of road : " + roadNumber);
     }
 
     public void setRoadSize(float size){
         this.roadSize = size;
     }
 
-    public void updateNodes(SortedMap<Long, Node> nodes, Vector4f boundaries, Vector4f displayBoundaries, float zoomLevel){
+    /**
+     * Update the renderer with connected nodes and their positions
+     *
+     * @param nodes List of nodes inside the boundaries
+     * @param boundaries geographic boundaries
+     * @param displayBoundaries display size destination
+     * @param zoomLevel current camera zoom level
+     */
+    public void updateRoads(SortedMap<Long, Node> nodes, Vector4f boundaries, Vector4f displayBoundaries, float zoomLevel){
         float roadSize = this.roadSize / zoomLevel;
 
         int i = 0;
@@ -83,6 +107,8 @@ public class RoadRenderer {
                 position2 = node.getPositionInBoundaries(boundaries, displayBoundaries);
 
                 result = position1.sub(position2, result).perpendicular().normalize();
+
+                // The rectangle will be rotated
 
                 temp1.x = position1.x - result.x * roadSize / 2;
                 temp1.y = position1.y - result.y * roadSize / 2;

@@ -11,19 +11,19 @@ import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.mightylib.util.math.MathTime;
 import MobilityViewer.project.TickTranslator;
-import MobilityViewer.project.scenes.loadingContent.ShowVehicleLoading;
+import MobilityViewer.project.scenes.loadingContent.ShowVehicleSimulationLoading;
 import MobilityViewer.project.display.GUI.HorizontalSlider;
 import MobilityViewer.project.display.GUI.Slider;
 import MobilityViewer.project.display.NodeRenderer;
 import MobilityViewer.project.display.RoadRenderer;
-import MobilityViewer.project.display.Scooter;
+import MobilityViewer.project.display.Vehicle;
 import MobilityViewer.project.graph.Node;
 import MobilityViewer.project.main.ActionId;
 import MobilityViewer.project.scenes.SceneConstants;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
-public class ShowVehicleSimulation extends SceneMap<ShowVehicleLoading, ShowVehicleLoading.SSLResult> {
+public class ShowVehicleSimulationScene extends SceneUsingMap<ShowVehicleSimulationLoading, ShowVehicleSimulationLoading.SSLResult> {
     private static final long BASE_TIME_SPEED = 1000000;
 
     public static TickTranslator TRANSLATOR;
@@ -47,8 +47,8 @@ public class ShowVehicleSimulation extends SceneMap<ShowVehicleLoading, ShowVehi
 
     private String pattern;
 
-    public ShowVehicleSimulation() {
-        super(new ShowVehicleLoading(),
+    public ShowVehicleSimulationScene(String resourceCategory) {
+        super(new ShowVehicleSimulationLoading(resourceCategory),
                 "Object size up / down : u / j\n");
     }
 
@@ -110,10 +110,10 @@ public class ShowVehicleSimulation extends SceneMap<ShowVehicleLoading, ShowVehi
 
         roadRenderer = new RoadRenderer(mapCamera);
         roadRenderer.init(loadingResult.nodes);
-        roadRenderer.updateNodes(
+        roadRenderer.updateRoads(
                 loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
-        Scooter.initRenderer(mapCamera);
+        Vehicle.initRenderer(mapCamera);
 
         chooseTime = new GUIList(inputManager, mouseManager);
 
@@ -214,9 +214,9 @@ public class ShowVehicleSimulation extends SceneMap<ShowVehicleLoading, ShowVehi
     public void zoom(Vector2f factor){
         mapCamera.setZoomLevel(new Vector2f(mapCamera.getZoomLevel()).mul(factor));
         nodeRenderer.updateNodes(loadingResult.nodes.values(), boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
-        roadRenderer.updateNodes(loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+        roadRenderer.updateRoads(loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
 
-        Scooter.Size = scooterSize / mapCamera.getZoomLevel().x;
+        Vehicle.Size = scooterSize / mapCamera.getZoomLevel().x;
     }
 
     @Override
@@ -279,7 +279,7 @@ public class ShowVehicleSimulation extends SceneMap<ShowVehicleLoading, ShowVehi
             zoom(new Vector2f(1.01f));
         }
 
-        SceneMap.moves(mapCamera, inputManager);
+        SceneUsingMap.moves(mapCamera, inputManager);
 
         speedSlider.update();
         if (speedSlider.isGettingDragged())
@@ -300,22 +300,22 @@ public class ShowVehicleSimulation extends SceneMap<ShowVehicleLoading, ShowVehi
 
         if (inputManager.getState(ActionId.OBJECT_SIZE_UP)){
             scooterSize *= 1.005f;
-            Scooter.Size = scooterSize / mapCamera.getZoomLevel().x;
+            Vehicle.Size = scooterSize / mapCamera.getZoomLevel().x;
         }
 
         if (inputManager.getState(ActionId.OBJECT_SIZE_DOWN)){
             scooterSize /= 1.005f;
-            Scooter.Size = scooterSize / mapCamera.getZoomLevel().x;
+            Vehicle.Size = scooterSize / mapCamera.getZoomLevel().x;
         }
 
         if (playing) {
-            Scooter.beforeUpdate();
+            Vehicle.beforeUpdate();
 
-            for (Scooter scooter : loadingResult.scooters)
+            for (Vehicle scooter : loadingResult.scooters)
                 scooter.update(currentTime, boundaries, displayBoundaries);
 
             currentTimeText.setText(MathTime.tickToCustomizedStr(currentTime + startTime, pattern) +
-                    "\n" + Scooter.getNumberDrawn() + " scooters");
+                    "\n" + Vehicle.getNumberDrawn() + " scooters");
         }
     }
 
@@ -324,7 +324,7 @@ public class ShowVehicleSimulation extends SceneMap<ShowVehicleLoading, ShowVehi
         nodeRenderer.display();
         roadRenderer.display();
 
-        Scooter.display();
+        Vehicle.display();
 
         UIBackground.display();
         currentTimeText.display();
@@ -348,7 +348,7 @@ public class ShowVehicleSimulation extends SceneMap<ShowVehicleLoading, ShowVehi
         roadRenderer.unload();
         speedSlider.unload();
 
-        Scooter.unload();
+        Vehicle.unload();
 
         timeSlider.unload();
 

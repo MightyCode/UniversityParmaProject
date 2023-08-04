@@ -2,14 +2,14 @@ package MobilityViewer.project.scenes.mapScenes;
 
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
-import MobilityViewer.project.scenes.loadingContent.ReducedGraphLoading;
+import MobilityViewer.project.scenes.loadingContent.ShowReducedGraphLoading;
 import MobilityViewer.project.display.NodeRenderer;
 import MobilityViewer.project.display.RoadRenderer;
 import MobilityViewer.project.graph.*;
 import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
 
-public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, ReducedGraphLoading.RGLResult> {
+public class ShowReduceGraphScene extends SceneUsingMap<ShowReducedGraphLoading, ShowReducedGraphLoading.RGLResult> {
     private NodeRenderer<NodeIntersection> nodeRenderer;
 
     private NodeRenderer<NodeSubIntersection> subNodeRenderer;
@@ -22,8 +22,8 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
     private RoadRenderer reducedSubNodeRenderer;
     private int thingsToShow;
 
-    public ConstructReduceGraphScene(){
-        super(new ReducedGraphLoading(),
+    public ShowReduceGraphScene(){
+        super(new ShowReducedGraphLoading(),
                 "Object size up / down : u / j\n" +
                 "Switch display order : space\n");
     }
@@ -40,7 +40,7 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
         /// SCENE INFORMATION ///
         roadRenderer = new RoadRenderer(mapCamera);
         roadRenderer.init(loadingResult.nodes);
-        roadRenderer.updateNodes(loadingResult.nodes, boundaries,
+        roadRenderer.updateRoads(loadingResult.nodes, boundaries,
                 displayBoundaries, main2DCamera.getZoomLevel().x);
 
         nodeRenderer = new NodeRenderer<>(mapCamera);
@@ -59,12 +59,12 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
 
         reducedNodeRenderer = new RoadRenderer(mapCamera);
         reducedNodeRenderer.init(loadingResult.reducedNodes);
-        reducedNodeRenderer.updateNodes(loadingResult.reducedNodes, boundaries,
+        reducedNodeRenderer.updateRoads(loadingResult.reducedNodes, boundaries,
                 displayBoundaries, main2DCamera.getZoomLevel().x);
 
         reducedSubNodeRenderer = new RoadRenderer(mapCamera);
         reducedSubNodeRenderer.init(loadingResult.reducedSubNodes);
-        reducedSubNodeRenderer.updateNodes(loadingResult.reducedSubNodes, boundaries,
+        reducedSubNodeRenderer.updateRoads(loadingResult.reducedSubNodes, boundaries,
                 displayBoundaries, main2DCamera.getZoomLevel().x);
     }
 
@@ -76,11 +76,11 @@ public class ConstructReduceGraphScene extends SceneMap<ReducedGraphLoading, Red
         subNodeRenderer.updateNodes(loadingResult.reducedGraph.getSubNodeGraph().getNodes(),
                 boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
 
-        roadRenderer.updateNodes(loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+        roadRenderer.updateRoads(loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
 
-        reducedNodeRenderer.updateNodes(loadingResult.reducedNodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+        reducedNodeRenderer.updateRoads(loadingResult.reducedNodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
 
-        reducedSubNodeRenderer.updateNodes(loadingResult.reducedSubNodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
+        reducedSubNodeRenderer.updateRoads(loadingResult.reducedSubNodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
     }
 
     @Override

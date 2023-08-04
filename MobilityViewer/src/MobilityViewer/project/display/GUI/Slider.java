@@ -8,19 +8,25 @@ import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
 
+/**
+ * Abstract slider which can be used to create all customs slider.
+ */
 @SuppressWarnings("SuspiciousNameCombination")
 public abstract class Slider {
+    private static final int MAX_DIGIT_PRECISION = 9;
+
     private final Vector2f referencePosition, referenceSize;
     private final RectangleRenderer bar;
     private final RectangleRenderer button;
     private final Vector2f buttonBoundaries;
-
     private double minValue, maxValue;
     private double currentValue;
     private final InputManager inputManager;
     private final MouseManager mouseManager;
     private final Camera2D referenceCamera;
     private boolean isDragging;
+
+    // Maximum number of digits after the decimal point
     private int maxPrecision;
 
     public Slider(Camera2D referenceCamera, InputManager inputManager, MouseManager mouseManager,
@@ -81,7 +87,7 @@ public abstract class Slider {
             setButtonPositionDrag(button, buttonBoundaries, mouseManager.pos());
             currentValue = returnCurrentValue(button, buttonBoundaries);
 
-            if (maxPrecision > 0 && maxPrecision <= 5)
+            if (maxPrecision >= 0 && maxPrecision <= MAX_DIGIT_PRECISION)
                 currentValue = (float)((int)(currentValue * Math.pow(10, maxPrecision)) * 1.0f / Math.pow(10, maxPrecision));
         }
     }
@@ -122,7 +128,8 @@ public abstract class Slider {
     }
 
     public void setMaxPrecision(int value){
-        maxPrecision = value;
+        if (maxPrecision >= 0 && maxPrecision < MAX_DIGIT_PRECISION)
+            maxPrecision = value;
     }
 
     public int getMaxPrecision(){
@@ -144,8 +151,6 @@ public abstract class Slider {
     public boolean isGettingDragged() {
         return isDragging;
     }
-
-
 
     public void unload(){
         bar.unload();

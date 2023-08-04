@@ -11,21 +11,21 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class FullMatrixLoading extends LoadingContent {
+public class ShowFullMatrixLoading extends LoadingContent {
 
     public static final int[] NUMBER_CELLS = new int[]{ 12, 15 };
 
-    protected FullMatrixLoading.FMLResult fmlResult;
+    protected ShowFullMatrixLoading.FMLResult fmlResult;
     public static class FMLResult extends Result {
         public HashMap<String, int[][]> matrices;
         public HashMap<String, Integer> minValues;
         public HashMap<String, Integer> maxValues;
     }
 
-    public FullMatrixLoading() {
-        super(new FullMatrixLoading.FMLResult());
+    public ShowFullMatrixLoading() {
+        super(new ShowFullMatrixLoading.FMLResult());
 
-        fmlResult = (FullMatrixLoading.FMLResult) result;
+        fmlResult = (ShowFullMatrixLoading.FMLResult) result;
     }
 
     @Override
@@ -138,12 +138,12 @@ public class FullMatrixLoading extends LoadingContent {
                 && (SceneConstants.inBoundaries(boundaries, endPosition))) {
 
             Vector2i startCellPosition = new Vector2i(
-                    (int) ((startPosition.x - boundaries.x) / diff.x * FullMatrixLoading.NUMBER_CELLS[0]),
-                    (int) ((diff.y - (startPosition.y - boundaries.y)) / diff.y * FullMatrixLoading.NUMBER_CELLS[1])
+                    (int) ((startPosition.x - boundaries.x) / diff.x * ShowFullMatrixLoading.NUMBER_CELLS[0]),
+                    (int) ((diff.y - (startPosition.y - boundaries.y)) / diff.y * ShowFullMatrixLoading.NUMBER_CELLS[1])
             );
             Vector2i endCellPosition = new Vector2i(
-                    (int) ((endPosition.x - boundaries.x) / diff.x * FullMatrixLoading.NUMBER_CELLS[0]),
-                    (int) ((diff.y - (endPosition.y - boundaries.y)) / diff.y * FullMatrixLoading.NUMBER_CELLS[1])
+                    (int) ((endPosition.x - boundaries.x) / diff.x * ShowFullMatrixLoading.NUMBER_CELLS[0]),
+                    (int) ((diff.y - (endPosition.y - boundaries.y)) / diff.y * ShowFullMatrixLoading.NUMBER_CELLS[1])
             );
 
             if (++fmlResult.matrices.get(type)[startCellPosition.y * NUMBER_CELLS[0] + startCellPosition.x]

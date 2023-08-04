@@ -13,9 +13,11 @@ import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
-public class TypeSelector <T extends Enum<?>> {
+/**
+ * No used
+ */
+public class EnumSelector<T extends Enum<?>> {
     private final T[] values;
-
     private boolean updated;
     private int selected;
     private boolean canLoop;
@@ -26,7 +28,7 @@ public class TypeSelector <T extends Enum<?>> {
 
     private final InputManager inputManager;
 
-    public TypeSelector(T[] values, Context context){
+    public EnumSelector(T[] values, Context context){
         this.values = values;
         this.inputManager = context.getInputManager();
         Vector2i windowSize = context.getWindow().getInfo().getVirtualSizeCopy();
@@ -90,13 +92,13 @@ public class TypeSelector <T extends Enum<?>> {
         typeSelectedName.display();
     }
 
-    public TypeSelector<T> setCanLoop(){
+    public EnumSelector<T> setCanLoop(){
         canLoop = true;
 
         return setIndex(selected);
     }
 
-    public TypeSelector<T> setIndex(int i){
+    public EnumSelector<T> setIndex(int i){
         setSelected(i);
 
         return this;

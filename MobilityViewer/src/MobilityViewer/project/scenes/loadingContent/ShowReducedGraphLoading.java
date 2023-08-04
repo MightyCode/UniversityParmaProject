@@ -8,8 +8,8 @@ import org.json.JSONObject;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class ReducedGraphLoading extends LoadingContent{
-    protected ReducedGraphLoading.RGLResult rglResult;
+public class ShowReducedGraphLoading extends LoadingContent{
+    protected ShowReducedGraphLoading.RGLResult rglResult;
 
     public static class RGLResult extends LoadingContent.Result {
         public SortedMap<Long, Node> nodes;
@@ -20,10 +20,10 @@ public class ReducedGraphLoading extends LoadingContent{
         public SortedMap<Long, Node> reducedSubNodes;
     }
 
-    public ReducedGraphLoading() {
-        super(new ReducedGraphLoading.RGLResult());
+    public ShowReducedGraphLoading() {
+        super(new ShowReducedGraphLoading.RGLResult());
 
-        rglResult = (ReducedGraphLoading.RGLResult) result;
+        rglResult = (ShowReducedGraphLoading.RGLResult) result;
     }
 
     @Override

@@ -3,7 +3,7 @@ package MobilityViewer.project.scenes.mapScenes;
 import MobilityViewer.mightylib.graphics.text.ETextAlignment;
 import MobilityViewer.mightylib.graphics.text.Text;
 import MobilityViewer.mightylib.util.math.EDirection;
-import MobilityViewer.project.scenes.loadingContent.ExportScooterPathLoading;
+import MobilityViewer.project.scenes.loadingContent.ExportVehiclesPathLoading;
 import MobilityViewer.project.main.ActionId;
 import MobilityViewer.project.scenes.LoadingScene;
 import MobilityViewer.project.scenes.MenuScene;
@@ -11,9 +11,9 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
-public class ExportScootersPathScene extends LoadingScene<ExportScooterPathLoading, ExportScooterPathLoading.EXPLResult> {
-    public ExportScootersPathScene(){
-        super(new ExportScooterPathLoading());
+public class ExportVehiclesPathScene extends LoadingScene<ExportVehiclesPathLoading, ExportVehiclesPathLoading.EXPLResult> {
+    public ExportVehiclesPathScene(String resourceCategory){
+        super(new ExportVehiclesPathLoading(resourceCategory));
     }
     private Vector2i windowSize;
     private Text done;

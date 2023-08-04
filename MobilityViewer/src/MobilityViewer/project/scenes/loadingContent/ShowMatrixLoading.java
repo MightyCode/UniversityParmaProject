@@ -16,9 +16,9 @@ import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class MovesMatrixLoading extends LoadingContent {
+public class ShowMatrixLoading extends LoadingContent {
     public static final int[] NUMBER_CELLS = new int[]{ 200, 200 };
-    protected MovesMatrixLoading.MMLResult mmlResult;
+    protected ShowMatrixLoading.MMLResult mmlResult;
     public static class MMLResult extends LoadingContent.Result {
         public SortedMap<Long, Node> nodes;
         public SortedMap<Long, Road> roads;
@@ -40,10 +40,10 @@ public class MovesMatrixLoading extends LoadingContent {
         public HashMap<String, Integer> maxAbsoluteValues;
     }
 
-    public MovesMatrixLoading() {
-        super(new MovesMatrixLoading.MMLResult());
+    public ShowMatrixLoading() {
+        super(new ShowMatrixLoading.MMLResult());
 
-        mmlResult = (MovesMatrixLoading.MMLResult) result;
+        mmlResult = (ShowMatrixLoading.MMLResult) result;
     }
 
     @Override
@@ -171,7 +171,7 @@ public class MovesMatrixLoading extends LoadingContent {
 
     public void fillPosition(Vector2f startPosition, Vector2f endPosition, JSONObject object, CSVFile csvFile, int index) {
         String type = object.getString("type");
-        if (type.equalsIgnoreCase("start/end")){
+        if (type.equalsIgnoreCase("start/end")) {
             JSONObject info = object.getJSONObject("info");
 
             startPosition.x = Float.parseFloat(csvFile.getData(index,
@@ -180,14 +180,13 @@ public class MovesMatrixLoading extends LoadingContent {
             startPosition.y = Float.parseFloat(csvFile.getData(index,
                     info.getJSONObject("startLatitude").getInt("col")));
 
-
             endPosition.x = Float.parseFloat(csvFile.getData(index,
                     info.getJSONObject("endLongitude").getInt("col")));
 
             endPosition.y = Float.parseFloat(csvFile.getData(index,
                     info.getJSONObject("endLatitude").getInt("col")));
 
-        } else if (type.equalsIgnoreCase("path")){
+        } else if (type.equalsIgnoreCase("path")) {
             String temp = csvFile.getData(index, 0);
 
             String[] positions = temp.split(",");
@@ -210,13 +209,13 @@ public class MovesMatrixLoading extends LoadingContent {
                 && (SceneConstants.inBoundaries(boundaries, endPosition))) {
 
             Vector2i startCellPosition = new Vector2i(
-                    (int) ((startPosition.x - boundaries.x) / diff.x * MovesMatrixLoading.NUMBER_CELLS[0]),
-                    (int) ((diff.y - (startPosition.y - boundaries.y)) / diff.y * MovesMatrixLoading.NUMBER_CELLS[1])
+                    (int) ((startPosition.x - boundaries.x) / diff.x * ShowMatrixLoading.NUMBER_CELLS[0]),
+                    (int) ((diff.y - (startPosition.y - boundaries.y)) / diff.y * ShowMatrixLoading.NUMBER_CELLS[1])
             );
 
             Vector2i endCellPosition = new Vector2i(
-                    (int) ((endPosition.x - boundaries.x) / diff.x * MovesMatrixLoading.NUMBER_CELLS[0]),
-                    (int) ((diff.y - (endPosition.y - boundaries.y)) / diff.y * MovesMatrixLoading.NUMBER_CELLS[1])
+                    (int) ((endPosition.x - boundaries.x) / diff.x * ShowMatrixLoading.NUMBER_CELLS[0]),
+                    (int) ((diff.y - (endPosition.y - boundaries.y)) / diff.y * ShowMatrixLoading.NUMBER_CELLS[1])
             );
 
             // Start Matrix

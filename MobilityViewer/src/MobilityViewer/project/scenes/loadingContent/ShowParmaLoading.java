@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class ParmaShowPointLoading extends LoadingContent {
+public class ShowParmaLoading extends LoadingContent {
 
     protected PSPResult pspResult;
 
@@ -19,7 +19,7 @@ public class ParmaShowPointLoading extends LoadingContent {
         public SortedMap<Long, Road> roads;
     }
 
-    public ParmaShowPointLoading() {
+    public ShowParmaLoading() {
         super(new PSPResult());
 
         pspResult = (PSPResult) result;

@@ -1,0 +1,39 @@
+{
+  "bike" : {
+    "name" : "Bikes",
+    "file" : "bikes-path",
+    "type" : "path",
+    "includeTime" : false
+  }, "scooter" : {
+    "name" : "Scooters",
+    "file" : "Noleggi_Parma_2022",
+    "includeTime" : true,
+    "type" : "start/end",
+    "info" : {
+      "startLatitude": {
+        "name": "start_latitude",
+        "col": 1
+      },
+      "startLongitude": {
+        "name": "start_longitude",
+        "col": 2
+      },
+      "startTime": {
+        "name": "start_time",
+        "col": 0
+      },
+      "endLatitude": {
+        "name": "stop_latitude",
+        "col": 4
+      },
+      "endLongitude": {
+        "name": "stop_longitude",
+        "col": 5
+      },
+      "endTime": {
+        "name": "stop_time",
+        "col": 3
+      }
+    }
+  }
+}

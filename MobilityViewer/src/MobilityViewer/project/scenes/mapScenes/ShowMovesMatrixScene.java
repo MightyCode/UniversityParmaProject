@@ -7,13 +7,13 @@ import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.project.display.*;
 import MobilityViewer.project.graph.Node;
-import MobilityViewer.project.scenes.loadingContent.MovesMatrixLoading;
+import MobilityViewer.project.scenes.loadingContent.ShowMatrixLoading;
 import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
 
 import java.util.HashMap;
 
-public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLoading.MMLResult> {
+public class ShowMovesMatrixScene extends SceneUsingMap<ShowMatrixLoading, ShowMatrixLoading.MMLResult> {
     private NodeRenderer<Node> nodeRenderer;
     private RoadRenderer roadRenderer;
 
@@ -29,8 +29,8 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
 
     private StrSelector typeSelector;
 
-    public MovesMatrixScene() {
-        super(new MovesMatrixLoading(),
+    public ShowMovesMatrixScene() {
+        super(new ShowMatrixLoading(),
                 "Switch from start / end matrix : space\n" +  "Show / Hide map : t\n");
     }
 
@@ -44,7 +44,7 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
         mapCamera.setZoomLevel(new Vector2f(mapCamera.getZoomLevel()).mul(factor));
         nodeRenderer.updateNodes(
                 loadingResult.nodes.values(), boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
-        roadRenderer.updateNodes(
+        roadRenderer.updateRoads(
                 loadingResult.nodes, boundaries, displayBoundaries, mapCamera.getZoomLevel().x);
     }
 
@@ -62,7 +62,7 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
         roadRenderer = new RoadRenderer(mapCamera);
         roadRenderer.setColor(new Color4f(0, 0, 1, 0.6f));
         roadRenderer.init(loadingResult.nodes);
-        roadRenderer.updateNodes(
+        roadRenderer.updateRoads(
                 loadingResult.nodes, boundaries, displayBoundaries, main2DCamera.getZoomLevel().x);
 
         matrixToShow = 0;
@@ -77,21 +77,21 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
                     loadingResult.startMatrices.get(key).length * loadingResult.startMatrices.get(key)[0].length));
 
             startMatricesRenderer.get(key)
-                    .updateNodes(loadingResult.startMatrices.get(key),
+                    .updateRenderer(loadingResult.startMatrices.get(key),
                             loadingResult.minStartValues.get(key), loadingResult.maxStartValues.get(key), displayBoundaries);
 
             endMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
                     loadingResult.endMatrices.get(key).length * loadingResult.endMatrices.get(key)[0].length));
 
             endMatricesRenderer.get(key)
-                    .updateNodes(loadingResult.endMatrices.get(key),
+                    .updateRenderer(loadingResult.endMatrices.get(key),
                             loadingResult.minEndValues.get(key), loadingResult.maxEndValues.get(key), displayBoundaries);
 
             absoluteMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
                     loadingResult.absoluteMatrices.get(key).length * loadingResult.absoluteMatrices.get(key)[0].length));
 
             absoluteMatricesRenderer.get(key)
-                    .updateNodes(loadingResult.absoluteMatrices.get(key),
+                    .updateRenderer(loadingResult.absoluteMatrices.get(key),
                             loadingResult.minAbsoluteValues.get(key), loadingResult.maxAbsoluteValues.get(key), displayBoundaries);
 
             combineMatricesRenderer.put(key, new MatrixRenderer(mapCamera,
@@ -100,7 +100,7 @@ public class MovesMatrixScene extends SceneMap<MovesMatrixLoading, MovesMatrixLo
             combineMatricesRenderer.get(key).setColorMode(MatrixRenderer.EMatrixRendererMode.ColorInterval);
 
             combineMatricesRenderer.get(key)
-                    .updateNodes(loadingResult.combineMatrices.get(key),
+                    .updateRenderer(loadingResult.combineMatrices.get(key),
                             loadingResult.minCombineValues.get(key), loadingResult.maxCombineValues.get(key), displayBoundaries);
         }
 

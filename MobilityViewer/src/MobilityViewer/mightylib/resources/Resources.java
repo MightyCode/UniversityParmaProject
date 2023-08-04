@@ -2,6 +2,7 @@ package MobilityViewer.mightylib.resources;
 
 import MobilityViewer.mightylib.graphics.text.FontLoader;
 import MobilityViewer.mightylib.resources.animation.AnimationDataLoader;
+import MobilityViewer.mightylib.resources.data.JsonLoader;
 import MobilityViewer.mightylib.resources.sound.SoundLoader;
 import MobilityViewer.mightylib.resources.texture.IconLoader;
 import MobilityViewer.mightylib.resources.texture.TextureLoader;
@@ -37,6 +38,7 @@ public class Resources {
         Loaders.add(new AnimationDataLoader());
         Loaders.add(new FontLoader());
         Loaders.add(new SoundLoader());
+        Loaders.add(new JsonLoader());
 
         initialized = false;
         firstLoad = false;

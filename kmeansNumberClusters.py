@@ -9,9 +9,11 @@ from DataParsed import DataParsed
 from Boundaries import Boundaries
 
 if __name__ == "__main__" :
+    FILE_NAME = 'BIT Mobility/Noleggi_Parma_2022.csv'
+
     boundaries = Boundaries(False)
 
-    df = pd.read_csv('BIT Mobility/Noleggi_Parma_2022.csv')
+    df = pd.read_csv(FILE_NAME)
     mobility_data = boundaries.filter_pandas_data(df)
 
     time_in_day = True

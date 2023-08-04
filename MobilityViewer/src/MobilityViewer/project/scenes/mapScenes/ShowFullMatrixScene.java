@@ -5,23 +5,22 @@ import MobilityViewer.mightylib.graphics.text.Text;
 import MobilityViewer.mightylib.util.math.ColorList;
 import MobilityViewer.mightylib.util.math.EDirection;
 import MobilityViewer.project.display.MatrixRenderer;
-import MobilityViewer.project.display.EnumSelector;
 import MobilityViewer.project.display.StrSelector;
-import MobilityViewer.project.scenes.loadingContent.FullMatrixLoading;
+import MobilityViewer.project.scenes.loadingContent.ShowFullMatrixLoading;
 import MobilityViewer.project.main.ActionId;
 import org.joml.Vector2f;
 
 import java.util.HashMap;
 
-public class ConstructFullMatrixScene extends SceneMap<FullMatrixLoading, FullMatrixLoading.FMLResult> {
+public class ShowFullMatrixScene extends SceneUsingMap<ShowFullMatrixLoading, ShowFullMatrixLoading.FMLResult> {
     private HashMap<String, MatrixRenderer> matricesRenderer;
 
     private Text currentMatrixDisplayed;
 
     private StrSelector typeSelector;
 
-    public ConstructFullMatrixScene() {
-        super(new FullMatrixLoading());
+    public ShowFullMatrixScene() {
+        super(new ShowFullMatrixLoading());
     }
 
     @Override
@@ -42,7 +41,7 @@ public class ConstructFullMatrixScene extends SceneMap<FullMatrixLoading, FullMa
             matricesRenderer.put(key, new MatrixRenderer(mapCamera,
                     loadingResult.matrices.get(key).length * loadingResult.matrices.get(key)[0].length));
 
-            matricesRenderer.get(key).updateNodes(loadingResult.matrices.get(key),
+            matricesRenderer.get(key).updateRenderer(loadingResult.matrices.get(key),
                     loadingResult.minValues.get(key), loadingResult.maxValues.get(key), displayBoundaries);
         }
 

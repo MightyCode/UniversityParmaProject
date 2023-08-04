@@ -15,6 +15,22 @@ public class VerticalSlider extends Slider {
                 1);
     }
 
+    protected void setButtonPositionDrag(RectangleRenderer button,
+                                         Vector2f buttonBoundaries, Vector2f mousePosition){
+        Vector2f newPosition = new Vector2f(
+                button.position().x,
+                mousePosition.y - button.scale().y * 0.5f
+        );
+
+        if (newPosition.y < buttonBoundaries.x){
+            newPosition.y = buttonBoundaries.x;
+        } else if (newPosition.y > buttonBoundaries.y) {
+            newPosition.y = buttonBoundaries.y;
+        }
+
+        button.setPosition(newPosition);
+    }
+
     @Override
     protected void setBarSize(RectangleRenderer bar, Vector2f sliderSize){
         bar.setSizePix(sliderSize.x * 0.1f,sliderSize.y);
@@ -55,23 +71,7 @@ public class VerticalSlider extends Slider {
     }
 
     @Override
-    protected double returnCurrentValue(RectangleRenderer button, Vector2f buttonBoundaries){
+    protected double returnCurrentValue(RectangleRenderer button, Vector2f buttonBoundaries) {
         return MightyMath.mapd(button.position().y, buttonBoundaries.x, buttonBoundaries.y, getMinValue(), getMaxValue());
-    }
-
-    protected void setButtonPositionDrag(RectangleRenderer button,
-                                         Vector2f buttonBoundaries, Vector2f mousePosition){
-        Vector2f newPosition = new Vector2f(
-                button.position().x,
-                mousePosition.y - button.scale().y * 0.5f
-        );
-
-        if (newPosition.y < buttonBoundaries.x){
-            newPosition.y = buttonBoundaries.x;
-        } else if (newPosition.y > buttonBoundaries.y) {
-            newPosition.y = buttonBoundaries.y;
-        }
-
-        button.setPosition(newPosition);
     }
 }
